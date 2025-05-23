@@ -7,7 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script>
-    const sheetUrl = 'https://opensheet.elk.sh/YOUR_SHEET_ID/Sheet1';
+    const sheetUrl = 'https://opensheet.elk.sh/2PACX-1vTroZmzFAZz-F9pym1fIOCrTGe3SLnOmtrFzuSW5gCAN-o0ncGFcj9j0wh_O4oTv5nYtc5O7xGPelOK/Sheet1';
 
     function submitEnquiry(event) {
       event.preventDefault();
@@ -21,7 +21,7 @@
         whatsapp: form.querySelector('#whatsapp').checked ? 'Yes' : 'No'
       };
 
-      fetch('https://script.google.com/d/e/2PACX-1vTroZmzFAZz-F9pym1fIOCrTGe3SLnOmtrFzuSW5gCAN-o0ncGFcj9j0wh_O4oTv5nYtc5O7xGPelOK/pubhtml?gid=0', {
+      fetch('https://script.google.com/a/macros/kpriet.ac.in/s/AKfycbxZEgqLuEFSgYP8pvfp3RwoZVXTESug8KU0lXiY5S1YYbv8vGSUWxSIOFPwSH0oy8rUGw/exec', {
         method: 'POST',
         mode: 'no-cors',
         headers: {
@@ -66,22 +66,32 @@
       });
     }
 
-    window.onload = loadListings();
+    window.onload = () => {
+      loadListings();
     };
   </script>
   <style>
     html {
       scroll-behavior: smooth;
     }
-   
+    @media (max-width: 640px) {
+      nav ul {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      nav ul li a {
+        font-size: 1.25rem;
+      }
+    }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-  <nav class="bg-white shadow p-4 flex justify-between items-center">
-   <h1 class="text-2xl font-bold text-black-650 flex items-center">
+  <nav class="bg-white shadow p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+    <h1 id="intro-title" class="text-2xl font-bold text-black-650 flex items-center justify-center sm:justify-start">
       <img src="icon.png" alt="Icon" width="32" height="32" class="mr-2"> LandKart
     </h1>
-    <ul class="flex space-x-6">
+    <ul class="flex flex-col sm:flex-row sm:space-x-6 mt-4 sm:mt-0 items-center">
       <li><a href="#" class="hover:text-green-500 transition duration-300 ease-in-out">Home</a></li>
       <li><a href="#about" class="hover:text-green-500 transition duration-300 ease-in-out">About</a></li>
       <li><a href="#listings" class="hover:text-green-500 transition duration-300 ease-in-out">Listings</a></li>
