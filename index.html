@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LandKart</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    const sheetUrl = 'https://opensheet.elk.sh/YOUR_SHEET_ID/Sheet1';
+
+    function submitEnquiry(event) {
+      event.preventDefault();
+      const form = event.target;
+
+      const data = {
+        name: form.querySelector('input[placeholder="Your Name"]').value,
+        phone: form.querySelector('input[placeholder="Phone Number"]').value,
+        email: form.querySelector('input[placeholder="Email Address"]').value,
+        description: form.querySelector('textarea').value,
+        whatsapp: form.querySelector('#whatsapp').checked ? 'Yes' : 'No'
+      };
+
+      fetch('https://script.google.com/a/macros/kpriet.ac.in/s/AKfycbxZEgqLuEFSgYP8pvfp3RwoZVXTESug8KU0lXiY5S1YYbv8vGSUWxSIOFPwSH0oy8rUGw/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert('Thank you! Your enquiry has been submitted.');
+        form.reset();
+        document.getElementById('enquiryModal').classList.add('hidden');
+      }).catch(() => {
+        alert('Failed to submit. Try again later.');
+      });
+    }
+
+    async function loadListings() {
+      const response = await fetch(sheetUrl);
+      const listings = await response.json();
+
+      const container = document.getElementById('listings-container');
+      container.innerHTML = '';
+
+      listings.forEach(listing => {
+        const card = document.createElement('div');
+        card.className = "bg-gray-50 shadow rounded overflow-hidden";
+        card.innerHTML = `
+          <img src="${listing.image}" alt="Land Listing" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h4 class="text-xl font-semibold">${listing.title}</h4>
+            <p class="text-gray-600 mt-2">${listing.description}</p>
+            <p class="mt-3 text-green-600 font-bold">${listing.price}</p>
+            <button class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded enquire-btn">Enquire</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.querySelectorAll('.enquire-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('enquiryModal').classList.remove('hidden');
+        });
+      });
+    }
+
+    window.onload = loadListings();
+    };
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+   
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <nav class="bg-white shadow p-4 flex justify-between items-center">
+   <h1 class="text-2xl font-bold text-black-650 flex items-center">
+      <img src="icon.png" alt="Icon" width="32" height="32" class="mr-2"> LandKart
+    </h1>
+    <ul class="flex space-x-6">
+      <li><a href="#" class="hover:text-green-500 transition duration-300 ease-in-out">Home</a></li>
+      <li><a href="#about" class="hover:text-green-500 transition duration-300 ease-in-out">About</a></li>
+      <li><a href="#listings" class="hover:text-green-500 transition duration-300 ease-in-out">Listings</a></li>
+      <li><a href="#contact" class="hover:text-green-500 transition duration-300 ease-in-out">Contact</a></li>
+    </ul>
+  </nav>
+
+  <section class="relative bg-cover bg-center h-screen" style="background-image: url('hero.jpg');">
+    <div class="bg-black bg-opacity-40 h-full flex items-center justify-center text-center">
+      <div class="text-white px-4">
+        <h2 class="text-4xl md:text-6xl font-bold">Find Your Land of Dreams</h2>
+        <p class="mt-4 text-lg">Discover scenic and investment-worthy land parcels across the region.</p>
+        <a href="#listings" class="mt-6 inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-full">Explore Listings</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="listings" class="py-16 px-4 bg-white">
+    <h3 class="text-3xl font-semibold text-center text-green-700 mb-8">Featured Land Parcels</h3>
+    <div id="listings-container" class="grid md:grid-cols-3 gap-8"></div>
+  </section>
+
+  <div id="enquiryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h2 class="text-xl font-bold mb-4 text-green-700">Enquire About This Land</h2>
+      <form class="space-y-4" onsubmit="submitEnquiry(event)">
+        <input type="text" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded" required>
+        <input type="tel" placeholder="Phone Number" class="w-full p-3 border border-gray-300 rounded" required>
+        <input type="email" placeholder="Email Address" class="w-full p-3 border border-gray-300 rounded" required>
+        <textarea placeholder="Description / Requirements" class="w-full p-3 border border-gray-300 rounded"></textarea>
+        <div class="flex items-center">
+          <input type="checkbox" id="whatsapp" class="mr-2">
+          <label for="whatsapp">Receive updates on WhatsApp</label>
+        </div>
+        <div class="flex justify-between">
+          <button type="submit" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Submit</button>
+          <button type="button" onclick="document.getElementById('enquiryModal').classList.add('hidden')" class="text-gray-600 hover:text-red-500">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <section id="about" class="py-16 px-4 bg-gray-100">
+    <div class="max-w-4xl mx-auto text-center">
+      <h3 class="text-3xl font-bold text-green-700 mb-4">About Us</h3>
+      <p class="text-gray-700 text-lg">With decades of real estate expertise, we help you find the perfect land that fits your needs and future plans.</p>
+    </div>
+  </section>
+
+  <section id="contact" class="py-16 px-4 bg-white">
+    <div class="max-w-xl mx-auto">
+      <h3 class="text-3xl font-bold text-green-700 mb-6 text-center">Get In Touch</h3>
+      <form class="space-y-4">
+        <input type="text" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded">
+        <input type="email" placeholder="Your Email" class="w-full p-3 border border-gray-300 rounded">
+        <textarea placeholder="Your Message" class="w-full p-3 border border-gray-300 rounded"></textarea>
+        <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white p-3 rounded">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <div class="flex justify-center py-6">
+    <img src="logo.png" alt="Logo" class="w-40 h-auto">
+  </div>
+
+  <footer class="bg-gray-900 text-white text-center p-4 mt-8">
+    &copy; 2025 LandKart. All rights reserved.
+  </footer>
+</body>
+</html>
