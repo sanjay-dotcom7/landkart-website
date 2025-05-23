@@ -1,4 +1,4 @@
-# Green Estates Website
+# LandKart Website
 
 ## Setup Instructions
 
