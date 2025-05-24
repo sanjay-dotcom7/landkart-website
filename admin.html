@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LandKart Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #f9fafb; }
+    .container { max-width: 600px; margin: 40px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgb(0 0 0 / 0.1); }
+    label { font-weight: 600; margin-top: 12px; display: block; }
+    input, textarea { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; margin-top: 4px; }
+    button { margin-top: 16px; background-color: #16a34a; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
+    button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="text-3xl font-bold mb-4 text-green-700">Admin Panel - Add Land Listing</h1>
+
+    <form id="addListingForm">
+      <label for="title">Title</label>
+      <input id="title" name="title" type="text" required />
+
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4" required></textarea>
+
+      <label for="price">Price (₹)</label>
+      <input id="price" name="price" type="number" min="0" required />
+
+      <label for="image">Image URL</label>
+      <input id="image" name="image" type="url" required />
+
+      <button type="submit" id="submitBtn">Add Listing</button>
+    </form>
+
+    <div id="statusMessage" class="mt-4"></div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/library/d/1tbcVi9q0O0-BP2iO3DzpEGgCPp7Yf7lckB5DVBlphMhF2WGoQSPdvMeE/1'; // Your GAS Web App URL
+
+    const form = document.getElementById('addListingForm');
+    const statusMessage = document.getElementById('statusMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      submitBtn.disabled = true;
+      statusMessage.textContent = 'Adding listing...';
+
+      const data = {
+        title: form.title.value.trim(),
+        description: form.description.value.trim(),
+        price: form.price.value.trim(),
+        image: form.image.value.trim()
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if(result.status === 'success'){
+          statusMessage.textContent = 'Listing added successfully!';
+          form.reset();
+        } else {
+          statusMessage.textContent = 'Failed to add listing: ' + (result.message || 'Unknown error');
+        }
+      } catch (error) {
+        statusMessage.textContent = 'Error: ' + error.message;
+      }
+
+      submitBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>
