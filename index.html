@@ -2,72 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LandKart</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LandKart - Buy Lands Online</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="icon.png" type="image/png">
   <style>
     body { font-family: 'Poppins', sans-serif; }
-    .fade-in { animation: fadeIn 1.2s ease-in-out; }
+    .fade-in { animation: fadeIn 1s ease-in-out; }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    html { scroll-behavior: smooth; }
+    body.dark { background-color: #1a1a1a; color: #f1f1f1; }
+    body.dark nav, body.dark footer { background-color: #121212; }
+    body.dark input, body.dark textarea { background-color: #2c2c2c; color: #f1f1f1; }
   </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 text-gray-800">
   <div id="splash" class="fixed inset-0 bg-green-600 flex items-center justify-center text-white text-3xl font-bold z-50">
     Welcome to LandKart
   </div>
-  <script>
-    setTimeout(() => {
-      document.getElementById('splash').style.display = 'none';
-    }, 1500);
-  </script>
 
-  <nav class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-40">
-    <h1 class="text-2xl font-bold text-green-700">LandKart</h1>
-    <ul class="flex space-x-4 text-gray-600">
+  <nav class="bg-white shadow p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center sticky top-0 z-40">
+    <h1 class="text-2xl font-bold text-green-700 flex items-center">
+      <img src="icon.png" alt="Icon" class="w-8 h-8 mr-2"> LandKart
+    </h1>
+    <ul class="flex flex-col sm:flex-row sm:space-x-6 mt-4 sm:mt-0 items-center text-gray-600">
       <li><a href="#" class="hover:text-green-500">Home</a></li>
       <li><a href="#about" class="hover:text-green-500">About</a></li>
       <li><a href="#listings" class="hover:text-green-500">Listings</a></li>
       <li><a href="#contact" class="hover:text-green-500">Contact</a></li>
       <li><a href="admin.html" class="hover:text-green-500">Admin Panel</a></li>
+      <li><button onclick="document.body.classList.toggle('dark')" class="text-sm text-gray-500 hover:text-green-600">🌙</button></li>
     </ul>
   </nav>
 
-  <header class="bg-green-100 text-center p-10">
-    <h2 class="text-4xl font-bold text-green-800 mb-2">Find Your Perfect Land</h2>
-    <p class="text-green-700">Verified listings. Easy enquiries. Managed via Google Sheets.</p>
-  </header>
-
-  <section class="p-6">
-    <input id="search-bar" type="text" placeholder="Search lands..." class="w-full p-3 border rounded-lg shadow" />
-  </section>
-
-  <section id="listings" class="p-6">
-    <div id="listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      Loading listings...
+  <section class="relative bg-cover bg-center h-screen" style="background-image: url('hero.jpg');">
+    <div class="bg-black bg-opacity-50 h-full flex items-center justify-center text-center">
+      <div class="text-white px-4">
+        <h2 class="text-5xl font-bold mb-4">Find Your Land of Dreams</h2>
+        <p class="mb-6 text-lg">Discover scenic and investment-worthy land parcels across India.</p>
+        <a href="#listings" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-full">Explore Listings</a>
+      </div>
     </div>
   </section>
 
-  <section id="about" class="p-6 bg-white">
-    <h2 class="text-3xl font-bold mb-4 text-green-700">About Us</h2>
-    <p class="text-gray-700">LandKart offers a smart, simple platform to browse, manage, and inquire about land sales across your region. Our staff use Google Sheets to keep everything updated easily without any coding knowledge.</p>
+  <section class="p-6">
+    <input id="search-bar" type="text" placeholder="Search lands by location or price..." class="w-full p-3 border rounded-lg shadow" />
   </section>
 
-  <section id="contact" class="p-6 bg-gray-100">
-    <h2 class="text-3xl font-bold mb-4 text-green-700">Contact Us</h2>
-    <p class="text-gray-700">Email: contact@landkart.com</p>
-    <p class="text-gray-700">Phone: +91 98765 43210</p>
+  <div class="mb-6 flex flex-wrap gap-3 justify-center">
+    <button onclick="loadListings('farm')" class="px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200">Farm Land</button>
+    <button onclick="loadListings('residential')" class="px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200">Residential</button>
+    <button onclick="loadListings('commercial')" class="px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200">Commercial</button>
+  </div>
+
+  <section id="listings" class="p-6 bg-white">
+    <h3 class="text-3xl font-semibold text-center text-green-700 mb-8">Available Land Parcels</h3>
+    <div id="listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">Loading listings...</div>
   </section>
 
   <div id="enquiryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <form class="bg-white p-6 rounded shadow-lg w-full max-w-md" onsubmit="submitEnquiry(event)">
-      <h2 class="text-2xl font-semibold mb-4">Enquiry Form</h2>
-      <input name="name" type="text" placeholder="Your Name" required class="w-full border p-3 mb-3 rounded" />
-      <input name="phone" type="text" placeholder="Phone Number" required class="w-full border p-3 mb-3 rounded" />
-      <input name="email" type="email" placeholder="Email Address" required class="w-full border p-3 mb-4 rounded" />
+    <form class="bg-white p-6 rounded shadow-lg w-full max-w-md space-y-4" onsubmit="submitEnquiry(event)">
+      <h2 class="text-2xl font-semibold text-green-700">Submit Your Enquiry</h2>
+      <input type="text" placeholder="Your Name" required class="w-full border p-3 rounded" />
+      <input type="tel" placeholder="Phone Number" required class="w-full border p-3 rounded" />
+      <input type="email" placeholder="Email Address" required class="w-full border p-3 rounded" />
+      <textarea placeholder="Your Message" class="w-full border p-3 rounded"></textarea>
+      <div class="flex items-center">
+        <input type="checkbox" id="whatsapp" class="mr-2">
+        <label for="whatsapp">Receive updates on WhatsApp</label>
+      </div>
       <div class="flex justify-between">
         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Submit</button>
         <button type="button" onclick="document.getElementById('enquiryModal').classList.add('hidden')" class="text-red-600">Cancel</button>
@@ -75,36 +82,84 @@
     </form>
   </div>
 
-  <script>
-    const API_URL = 'https://script.google.com/macros/library/d/1tbcVi9q0O0-BP2iO3DzpEGgCPp7Yf7lckB5DVBlphMhF2WGoQSPdvMeE/1'; // Your GAS Web App URL
+  <section id="about" class="p-6 bg-gray-100">
+    <div class="max-w-4xl mx-auto text-center">
+      <h3 class="text-3xl font-bold text-green-700 mb-4">About LandKart</h3>
+      <p class="text-gray-700 text-lg">LandKart simplifies the process of land buying across India. We provide verified listings, expert assistance, and easy online inquiries—all managed seamlessly through a Google Sheet-powered dashboard.</p>
+    </div>
+  </section>
 
-    async function fetchListings() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch listings');
-        return await response.json();
-      } catch (error) {
-        console.error('Error fetching listings:', error);
-        return [];
-      }
+  <section id="contact" class="p-6 bg-white">
+    <div class="max-w-xl mx-auto text-center">
+      <h3 class="text-3xl font-bold text-green-700 mb-6">Contact Us</h3>
+      <p class="text-gray-700 mb-2">Email: contact@landkart.com</p>
+      <p class="text-gray-700">Phone: +91 98765 43210</p>
+    </div>
+  </section>
+
+  <footer class="bg-gray-900 text-white text-center p-4 mt-8">
+    &copy; 2025 LandKart. All rights reserved. | <a href="#" class="underline">Terms</a> | <a href="#" class="underline">Privacy</a>
+  </footer>
+
+  <a href="https://wa.me/919876543210" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-3 rounded-full shadow-lg hover:bg-green-600">
+    💬 Chat with Us
+  </a>
+
+  <script>
+    const sheetUrl = 'https://opensheet.elk.sh/2PACX-1vTroZmzFAZz-F9pym1fIOCrTGe3SLnOmtrFzuSW5gCAN-o0ncGFcj9j0wh_O4oTv5nYtc5O7xGPelOK/Sheet1';
+
+    setTimeout(() => document.getElementById('splash').style.display = 'none', 1500);
+
+    function submitEnquiry(event) {
+      event.preventDefault();
+      const form = event.target;
+      const data = {
+        name: form.querySelector('input[placeholder="Your Name"]').value,
+        phone: form.querySelector('input[placeholder="Phone Number"]').value,
+        email: form.querySelector('input[placeholder="Email Address"]').value,
+        description: form.querySelector('textarea').value,
+        whatsapp: form.querySelector('#whatsapp').checked ? 'Yes' : 'No'
+      };
+
+      fetch('https://script.google.com/a/macros/kpriet.ac.in/s/AKfycbxZEgqLuEFSgYP8pvfp3RwoZVXTESug8KU0lXiY5S1YYbv8vGSUWxSIOFPwSH0oy8rUGw/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert('Thank you! Your enquiry has been submitted.');
+        form.reset();
+        document.getElementById('enquiryModal').classList.add('hidden');
+      }).catch(() => {
+        alert('Failed to submit. Try again later.');
+      });
+    }
+
+    async function loadListings(searchTerm = '') {
+      const response = await fetch(sheetUrl);
+      const listings = await response.json();
+      renderListings(listings, searchTerm);
     }
 
     function renderListings(listings, searchTerm = '') {
       const container = document.getElementById('listings-container');
       container.innerHTML = '';
+
       const filtered = listings.filter(listing =>
         listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         listing.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      if(filtered.length === 0){
+
+      if (filtered.length === 0) {
         container.innerHTML = '<p class="col-span-full text-center text-gray-500">No listings found.</p>';
         return;
       }
+
       filtered.forEach(listing => {
         const card = document.createElement('div');
-        card.className = "bg-white shadow-md rounded-lg p-4 fade-in";
+        card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
         card.innerHTML = `
-          <img src="${listing.image}" alt="${listing.title}" class="h-40 w-full object-cover rounded mb-4" />
+          <img loading="lazy" src="${listing.image}" alt="${listing.title}" class="h-40 w-full object-cover rounded mb-4" />
           <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
           <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
           <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
@@ -112,28 +167,16 @@
         `;
         container.appendChild(card);
       });
+
       document.querySelectorAll('.enquire-btn').forEach(btn => {
         btn.onclick = () => document.getElementById('enquiryModal').classList.remove('hidden');
       });
-    }
-
-    async function loadListings(searchTerm = '') {
-      const listings = await fetchListings();
-      renderListings(listings, searchTerm);
     }
 
     window.onload = () => {
       loadListings();
       document.getElementById('search-bar').addEventListener('input', e => loadListings(e.target.value));
     };
-
-    // Example stub for enquiry submission
-    function submitEnquiry(event) {
-      event.preventDefault();
-      alert('Enquiry submitted! (Add your enquiry submission code here)');
-      document.getElementById('enquiryModal').classList.add('hidden');
-      event.target.reset();
-    }
   </script>
 </body>
 </html>
