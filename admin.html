@@ -39,6 +39,11 @@
   </div>
 
   <script>
+
+   const role = sessionStorage.getItem("landkartRole");
+   if (role !== "admin") window.location.href = "login.html";
+
+
     const API_URL = 'https://script.google.com/macros/s/AKfycbwqiFg3m-n5CpxXkviCamFBf_XXlSwsJjivikZWLWEbEgcrBESTb2P3QzDbIEYex0195w/exec'; // Your GAS Web App URL
     const form = document.getElementById('addListingForm');
     const statusMessage = document.getElementById('statusMessage');
