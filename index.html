@@ -25,16 +25,22 @@
     Welcome to LandKart
   </div>
 
-  <nav class="bg-white shadow p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center sticky top-0 z-40">
-    <h1 class="text-2xl font-bold text-green-700 flex items-center">
-      <img src="icon.png" alt="Icon" class="w-8 h-8 mr-2"> LandKart
-    </h1>
-    <ul class="flex flex-col sm:flex-row sm:space-x-6 mt-4 sm:mt-0 items-center text-gray-600">
-      <li><a href="#" class="hover:text-green-500">Home</a></li>
-      <li><a href="#about" class="hover:text-green-500">About</a></li>
-      <li><a href="#listings" class="hover:text-green-500">Listings</a></li>
-      <li><a href="#contact" class="hover:text-green-500">Contact</a></li>
-      <li><a href="login.html" class="hover:text-green-500">Login</a></li>
+  <!-- Responsive Navigation -->
+  <nav class="bg-white shadow p-4 sticky top-0 z-40">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-green-700 flex items-center">
+        <img src="icon.png" alt="Icon" class="w-8 h-8 mr-2"> LandKart
+      </h1>
+      <button id="menu-toggle" class="sm:hidden focus:outline-none text-green-700 text-2xl">
+        ☰
+      </button>
+    </div>
+    <ul id="nav-links" class="hidden sm:flex flex-col sm:flex-row sm:space-x-6 mt-4 sm:mt-0 items-center text-gray-600">
+      <li><a href="#" class="block px-2 py-1 hover:text-green-500">Home</a></li>
+      <li><a href="#about" class="block px-2 py-1 hover:text-green-500">About</a></li>
+      <li><a href="#listings" class="block px-2 py-1 hover:text-green-500">Listings</a></li>
+      <li><a href="#contact" class="block px-2 py-1 hover:text-green-500">Contact</a></li>
+      <li><a href="login.html" class="block px-2 py-1 hover:text-green-500">Login</a></li>
       <li><button onclick="document.body.classList.toggle('dark')" class="text-sm text-gray-500 hover:text-green-600">🌙</button></li>
     </ul>
   </nav>
@@ -49,19 +55,21 @@
     </div>
   </section>
 
-  <section class="p-6">
+  <section class="p-6 max-w-3xl mx-auto">
     <input id="search-bar" type="text" placeholder="Search lands by location or price..." class="w-full p-3 border rounded-lg shadow" />
   </section>
 
-  <div class="mb-6 flex flex-wrap gap-3 justify-center">
+  <div class="mb-6 flex flex-wrap gap-3 justify-center px-4">
     <button onclick="loadListings('farm')" class="px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200">Farm Land</button>
     <button onclick="loadListings('residential')" class="px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200">Residential</button>
     <button onclick="loadListings('commercial')" class="px-4 py-2 bg-green-100 text-green-800 rounded-full hover:bg-green-200">Commercial</button>
   </div>
 
   <section id="listings" class="p-6 bg-white">
-    <h3 class="text-3xl font-semibold text-center text-green-700 mb-8">Available Land Parcels</h3>
-    <div id="listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">Loading listings...</div>
+    <div class="container mx-auto">
+      <h3 class="text-3xl font-semibold text-center text-green-700 mb-8">Available Land Parcels</h3>
+      <div id="listings-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">Loading listings...</div>
+    </div>
   </section>
 
   <div id="enquiryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
@@ -106,10 +114,13 @@
   </a>
 
   <script>
-   const sheetUrl = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
-
+    const sheetUrl = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
 
     setTimeout(() => document.getElementById('splash').style.display = 'none', 1500);
+
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('nav-links').classList.toggle('hidden');
+    });
 
     function submitEnquiry(event) {
       event.preventDefault();
