@@ -15,7 +15,6 @@
   </style>
 </head>
 <body>
-
   <div class="container">
     <h1 class="text-3xl font-bold mb-4 text-green-700">Admin Panel - Add Land Listing</h1>
 
@@ -29,9 +28,8 @@
       <label for="price">Price (₹)</label>
       <input id="price" name="price" type="number" min="0" required />
 
-     <label for="image">Upload Image</label>
-     <input id="image" name="image" type="file" accept="image/*" required />
-
+      <label for="image">Upload Image</label>
+      <input id="image" name="image" type="file" accept="image/*" required />
 
       <button type="submit" id="submitBtn">Add Listing</button>
     </form>
@@ -40,52 +38,62 @@
   </div>
 
   <script>
+    const role = sessionStorage.getItem("landkartRole");
+    if (role !== "admin") window.location.href = "login.html";
 
-   const role = sessionStorage.getItem("landkartRole");
-   if (role !== "admin") window.location.href = "login.html";
-
-
-    const API_URL = 'https://script.google.com/macros/s/AKfycby8_O8K3CyncSMYuyimnc0IN1SmqXQr_hDt4IqH6N3CduFXRQzZlHrEP2nFfzrdmSTV2Q/exec'; // Your GAS Web App URL
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzcje6QXduHvEdQ5KT5HZqnJr7l_TDbKTPGi3lCQKC2qFSCUCLT0OQ3e4qOwh4sf3jLWQ/exec';
     const form = document.getElementById('addListingForm');
     const statusMessage = document.getElementById('statusMessage');
     const submitBtn = document.getElementById('submitBtn');
 
-   form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-  submitBtn.disabled = true;
-  statusMessage.textContent = 'Uploading image...';
+      submitBtn.disabled = true;
+      statusMessage.textContent = 'Uploading...';
 
-  const fileInput = form.image;
-  const file = fileInput.files[0];
+      const fileInput = form.image;
+      const file = fileInput.files[0];
 
-  const formData = new FormData();
-  formData.append('image', file);
-  formData.append('title', form.title.value.trim());
-  formData.append('description', form.description.value.trim());
-  formData.append('price', form.price.value.trim());
+      if (!file) {
+        statusMessage.textContent = 'Please select an image file.';
+        submitBtn.disabled = false;
+        return;
+      }
 
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: formData
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const base64Data = reader.result;
+
+        const formData = new FormData();
+        formData.append('image', base64Data);
+        formData.append('title', form.title.value.trim());
+        formData.append('description', form.description.value.trim());
+        formData.append('price', form.price.value.trim());
+
+        try {
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            body: formData
+          });
+
+          const result = await res.json();
+
+          if (result.status === 'success') {
+            statusMessage.textContent = 'Listing added successfully!';
+            form.reset();
+          } else {
+            statusMessage.textContent = 'Failed: ' + result.message;
+          }
+        } catch (err) {
+          statusMessage.textContent = 'Error: ' + err.message;
+        }
+
+        submitBtn.disabled = false;
+      };
+
+      reader.readAsDataURL(file);
     });
-
-    const result = await res.json();
-
-    if (result.status === 'success') {
-      statusMessage.textContent = 'Listing added successfully!';
-      form.reset();
-    } else {
-      statusMessage.textContent = 'Failed: ' + result.message;
-    }
-  } catch (err) {
-    statusMessage.textContent = 'Error: ' + err.message;
-  }
-
-  submitBtn.disabled = false;
-});
-
   </script>
 </body>
 </html>
