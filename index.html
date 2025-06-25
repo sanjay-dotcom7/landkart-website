@@ -171,12 +171,17 @@
         const card = document.createElement('div');
         card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
         card.innerHTML = `
-          <img loading="lazy" src="${listing.image}" alt="${listing.title}" class="h-40 w-full object-cover rounded mb-4" />
-          <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
-          <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
-          <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
-          <button class="bg-green-600 text-white px-4 py-2 mt-3 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
-        `;
+       <img loading="lazy" 
+         src="${listing.image}" 
+         alt="${listing.title}" 
+         class="h-40 w-full object-cover rounded mb-4"
+         onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Image+Not+Available';" />
+  <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
+  <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
+  <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
+  <button class="bg-green-600 text-white px-4 py-2 mt-3 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
+`;
+
         container.appendChild(card);
       });
 
