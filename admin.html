@@ -35,6 +35,10 @@
     </form>
 
     <div id="statusMessage" class="mt-4"></div>
+    <div class="mt-4">
+  <button onclick="logout()" class="text-blue-600 underline text-sm">Logout & Return to Home</button>
+</div>
+
   </div>
 
   <script>
@@ -94,6 +98,11 @@
 
       reader.readAsDataURL(file);
     });
+    function logout() {
+  sessionStorage.removeItem("landkartRole");
+  window.location.href = "index.html";
+}
+
   </script>
 </body>
 </html>
