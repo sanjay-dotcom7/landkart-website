@@ -50,40 +50,42 @@
     const statusMessage = document.getElementById('statusMessage');
     const submitBtn = document.getElementById('submitBtn');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+   form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-      submitBtn.disabled = true;
-      statusMessage.textContent = 'Adding listing...';
+  submitBtn.disabled = true;
+  statusMessage.textContent = 'Uploading image...';
 
-      const data = {
-        title: form.title.value.trim(),
-        description: form.description.value.trim(),
-        price: form.price.value.trim(),
-        image: form.image.value.trim()
-      };
+  const fileInput = form.image;
+  const file = fileInput.files[0];
 
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('title', form.title.value.trim());
+  formData.append('description', form.description.value.trim());
+  formData.append('price', form.price.value.trim());
 
-        const result = await res.json();
-
-        if(result.status === 'success'){
-          statusMessage.textContent = 'Listing added successfully!';
-          form.reset();
-        } else {
-          statusMessage.textContent = 'Failed to add listing: ' + (result.message || 'Unknown error');
-        }
-      } catch (error) {
-        statusMessage.textContent = 'Error: ' + error.message;
-      }
-
-      submitBtn.disabled = false;
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: formData
     });
+
+    const result = await res.json();
+
+    if (result.status === 'success') {
+      statusMessage.textContent = 'Listing added successfully!';
+      form.reset();
+    } else {
+      statusMessage.textContent = 'Failed: ' + result.message;
+    }
+  } catch (err) {
+    statusMessage.textContent = 'Error: ' + err.message;
+  }
+
+  submitBtn.disabled = false;
+});
+
   </script>
 </body>
 </html>
