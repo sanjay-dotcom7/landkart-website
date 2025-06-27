@@ -204,19 +204,16 @@
 <script>
   const sheetUrl = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
 
-  // Splash fade out
   window.onload = () => {
     const splash = document.getElementById('splash');
     splash.style.opacity = 0;
     setTimeout(() => splash.remove(), 1000);
   };
 
-  // Mobile nav toggle
   document.getElementById('menu-toggle')?.addEventListener('click', () => {
-    document.getElementById('nav-links').classList.toggle('hidden');
+    document.getElementById('nav-links')?.classList.toggle('hidden');
   });
 
-  // Dark mode toggle
   const toggle = document.getElementById('theme-toggle');
   const circle = document.getElementById('toggle-circle');
 
@@ -238,7 +235,6 @@
     }
   });
 
-  // Enquiry form submission
   function submitEnquiry(event) {
     event.preventDefault();
     const form = event.target;
@@ -264,7 +260,6 @@
     });
   }
 
-  // Load and render listings
   async function loadListings(searchTerm = '') {
     const response = await fetch(sheetUrl);
     const listings = await response.json();
@@ -314,7 +309,6 @@
       container.appendChild(card);
     });
 
-    // Auto-rotate images
     setInterval(() => {
       document.querySelectorAll('.carousel-img').forEach(img => {
         const images = JSON.parse(img.getAttribute('data-images'));
@@ -325,7 +319,6 @@
       });
     }, 3000);
 
-    // Thumbnail click
     document.querySelectorAll('.thumbnail').forEach(thumb => {
       thumb.addEventListener('click', () => {
         const target = document.getElementById(thumb.dataset.target);
@@ -341,7 +334,6 @@
     });
   }
 
-  // Animated counters
   const counters = document.querySelectorAll('.counter');
 
   const animateCounters = () => {
@@ -371,4 +363,16 @@
   });
 
   observer.observe(document.querySelector('.counter'));
+
+  // 🔥 TRIGGER listings on load
+  window.addEventListener("DOMContentLoaded", () => {
+    loadListings();
+  });
+
+  // 🔍 Enable search filtering
+  document.getElementById('search-bar')?.addEventListener('input', e => {
+    loadListings(e.target.value);
+  });
 </script>
+</body>
+</html>
