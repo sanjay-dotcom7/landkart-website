@@ -8,17 +8,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="icon" href="icon.png" type="image/png">
   <style>
-    body { font-family: 'Poppins', sans-serif; }
-    .fade-in { animation: fadeIn 1s ease-in-out; }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    html { scroll-behavior: smooth; }
-    body.dark { background-color: #1a1a1a; color: #f1f1f1; }
-    body.dark nav, body.dark footer { background-color: #121212; }
-    body.dark input, body.dark textarea { background-color: #2c2c2c; color: #f1f1f1; }
-  </style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9fafb;
+    color: #1f2937;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .fade-in {
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 🔥 Dark Mode Enhancements */
+  body.dark {
+    background-color: #121212;
+    color: #f3f4f6;
+  }
+
+  body.dark nav,
+  body.dark footer,
+  body.dark .bg-white {
+    background-color: #1e1e1e !important;
+  }
+
+  body.dark .text-gray-700,
+  body.dark .text-gray-800 {
+    color: #e5e7eb !important;
+  }
+
+  body.dark .bg-gray-100,
+  body.dark .bg-gray-50 {
+    background-color: #1a1a1a !important;
+  }
+
+  body.dark input,
+  body.dark textarea {
+    background-color: #2c2c2c;
+    color: #f3f4f6;
+    border-color: #444;
+  }
+
+  body.dark .hover\\:bg-green-600:hover {
+    background-color: #15803d;
+  }
+
+  body.dark .bg-green-600 {
+    background-color: #15803d !important;
+  }
+
+  body.dark .bg-green-100 {
+    background-color: #065f46 !important;
+    color: #d1fae5 !important;
+  }
+
+  body.dark .shadow {
+    box-shadow: 0 0 10px rgba(0, 255, 130, 0.15);
+  }
+
+  body.dark .border {
+    border-color: #444 !important;
+  }
+</style>
+
 </head>
 <body class="bg-gray-50 text-gray-800">
   <div id="splash" class="fixed inset-0 bg-green-600 flex items-center justify-center text-white text-3xl font-bold z-50">
@@ -41,7 +100,12 @@
       <li><a href="#listings" class="block px-2 py-1 hover:text-green-500">Listings</a></li>
       <li><a href="#contact" class="block px-2 py-1 hover:text-green-500">Contact</a></li>
       <li><a href="login.html" class="block px-2 py-1 hover:text-green-500">Admin Login</a></li>
-      <li><button onclick="document.body.classList.toggle('dark')" class="text-sm text-gray-500 hover:text-green-600">Dark Mode</button></li>
+     <li>
+  <button onclick="document.body.classList.toggle('dark')" class="text-sm text-gray-500 hover:text-green-600">
+    Toggle Dark Mode
+  </button>
+</li>
+
     </ul>
   </nav>
 
