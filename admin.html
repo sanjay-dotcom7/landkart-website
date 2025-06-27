@@ -133,6 +133,11 @@
             <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
             <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
           </div>
+          <div class="flex items-center gap-2 mb-3">
+             <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
+             <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
+          </div>
+
           ${listing.youtube ? `<a href="${listing.youtube}" target="_blank" class="inline-block bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mb-2">Watch Video</a>` : ''}
           <div class="mt-2 flex gap-2">
             <input type="text" placeholder="Add or update YouTube URL" class="p-2 border rounded w-full" id="yt-${rowNumber}" value="${listing.youtube || ''}">
@@ -202,6 +207,27 @@
     alert('YouTube video removed.');
     loadListings();
   }
+  async function addMultiplePhotos(row) {
+  const input = document.getElementById(`multi-${row}`);
+  const newUrls = input.value.trim();
+  if (!newUrls) return alert("Please enter at least one URL.");
+
+  const formData = new FormData();
+  formData.append("addPhotoRow", row);
+  formData.append("image", newUrls);
+
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      body: formData
+    });
+    input.value = '';
+    loadListings();
+  } catch (err) {
+    alert("Failed to add images: " + err.message);
+  }
+}
+
 
   const logoutButton = document.createElement('button');
   logoutButton.textContent = 'Logout';
