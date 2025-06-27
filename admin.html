@@ -130,7 +130,7 @@
                 <button onclick="deletePhoto(${rowNumber}, ${i})" class="absolute top-0 right-0 text-xs bg-red-600 text-white px-1 rounded">×</button>
               </div>`).join('')}
           </div>
-          ${listing.youtube ? `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${getYouTubeID(listing.youtube)}" frameborder="0" allowfullscreen></iframe>` : ''}
+          ${listing.youtube ? `<a href="${listing.youtube}" target="_blank" class="inline-block bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mb-2">Watch Video</a>` : ''}
           <div class="mt-2 flex gap-2">
             <input type="text" placeholder="Add or update YouTube URL" class="p-2 border rounded w-full" id="yt-${rowNumber}" value="${listing.youtube || ''}">
             <button onclick="updateVideo(${rowNumber})" class="bg-blue-600 text-white px-2 py-1 rounded">Save</button>
@@ -144,11 +144,6 @@
     } catch (err) {
       container.innerHTML = '<p>Error loading listings.</p>';
     }
-  }
-
-  function getYouTubeID(url) {
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
-    return match ? match[1] : '';
   }
 
   async function deleteListing(row) {
@@ -180,7 +175,6 @@
     loadListings();
   }
 
-  // Logout button action
   const logoutButton = document.createElement('button');
   logoutButton.textContent = 'Logout';
   logoutButton.className = 'mt-6 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700';
@@ -192,3 +186,5 @@
 
   loadListings();
 </script>
+</body>
+</html>
