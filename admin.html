@@ -113,7 +113,7 @@
       container.innerHTML = '';
       listings.forEach((listing, index) => {
         const rowNumber = index + 2;
-        const images = listing.image.split(',').map(img => img.trim());
+        const images = (listing.image || '').split(',').map(img => img.trim()).filter(Boolean);
 
         const wrapper = document.createElement('div');
         wrapper.className = 'p-4 border rounded bg-gray-50';
@@ -129,6 +129,10 @@
                 <img src="${img}" class="w-20 h-14 object-cover rounded">
                 <button onclick="deletePhoto(${rowNumber}, ${i})" class="absolute top-0 right-0 text-xs bg-red-600 text-white px-1 rounded">×</button>
               </div>`).join('')}
+          </div>
+          <div class="flex items-center gap-2 mb-3">
+            <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
+            <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
           </div>
           ${listing.youtube ? `<a href="${listing.youtube}" target="_blank" class="inline-block bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mb-2">Watch Video</a>` : ''}
           <div class="mt-2 flex gap-2">
@@ -161,6 +165,24 @@
     loadListings();
   }
 
+  async function addPhoto(row) {
+    const fileInput = document.getElementById(`photo-${row}`);
+    const file = fileInput.files[0];
+    if (!file) return alert("Please choose an image file to add.");
+
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const base64Image = reader.result;
+      await fetch(API_URL + `?addPhotoRow=${row}`, {
+        method: 'POST',
+        body: JSON.stringify({ image: base64Image }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      loadListings();
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function updateVideo(row) {
     const input = document.getElementById(`yt-${row}`);
     const value = input.value.trim();
@@ -186,5 +208,6 @@
 
   loadListings();
 </script>
+
 </body>
 </html>
