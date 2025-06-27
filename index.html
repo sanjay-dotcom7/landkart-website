@@ -254,47 +254,78 @@
       renderListings(listings, searchTerm);
     }
 
-    function renderListings(listings, searchTerm = '') {
-      const container = document.getElementById('listings-container');
-      container.innerHTML = '';
+    <script>
+function renderListings(listings, searchTerm = '') {
+  const container = document.getElementById('listings-container');
+  container.innerHTML = '';
 
-      const filtered = listings.filter(listing =>
-        listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        listing.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const filtered = listings.filter(listing =>
+    listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    listing.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-      if (filtered.length === 0) {
-        container.innerHTML = '<p class="col-span-full text-center text-gray-500">No listings found.</p>';
-        return;
-      }
+  if (filtered.length === 0) {
+    container.innerHTML = '<p class="col-span-full text-center text-gray-500">No listings found.</p>';
+    return;
+  }
 
-      filtered.forEach(listing => {
-        const card = document.createElement('div');
-        card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
-        card.innerHTML = `
-       <img loading="lazy" 
-         src="${listing.image}" 
-         alt="${listing.title}" 
-         class="h-40 w-full object-cover rounded mb-4"
-         onerror="this.onerror=null; this.src='https://drive.google.com/file/d/1-4pQ5CUVzhtV0CO18ly2jWMO4cISVclC/view?usp=drive_link';" />
-  <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
-  <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
-  <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
-  <button class="bg-green-600 text-white px-4 py-2 mt-3 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
-`;
+  filtered.forEach((listing, index) => {
+    const images = listing.image.split(',').map(url => url.trim());
+    const youtube = listing.youtube?.trim();
 
-        container.appendChild(card);
-      });
+    const uniqueId = `carousel-${index}`;
+    const card = document.createElement('div');
+    card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
 
-      document.querySelectorAll('.enquire-btn').forEach(btn => {
-        btn.onclick = () => document.getElementById('enquiryModal').classList.remove('hidden');
-      });
-    }
+    card.innerHTML = `
+      <div class="relative overflow-hidden rounded mb-2 h-40">
+        <img id="${uniqueId}" src="${images[0]}" class="w-full h-40 object-cover rounded carousel-img" data-images='${JSON.stringify(images)}' data-current="0">
+      </div>
+      <div class="flex space-x-2 mb-4 overflow-x-auto">
+        ${images.map((img, i) => `
+          <img src="${img}" class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 thumbnail" data-target="${uniqueId}" data-index="${i}">
+        `).join('')}
+      </div>
+      <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
+      <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
+      <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
+      <div class="flex gap-3 mt-3">
+        <button class="bg-green-600 text-white px-4 py-2 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
+        ${youtube ? `<button onclick="window.open('${youtube}', '_blank')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Watch Video</button>` : ''}
+      </div>
+    `;
 
-    window.onload = () => {
-      loadListings();
-      document.getElementById('search-bar').addEventListener('input', e => loadListings(e.target.value));
-    };
+    container.appendChild(card);
+  });
+
+  // Auto-rotate images
+  setInterval(() => {
+    document.querySelectorAll('.carousel-img').forEach(img => {
+      const images = JSON.parse(img.getAttribute('data-images'));
+      let currentIndex = +img.getAttribute('data-current');
+      currentIndex = (currentIndex + 1) % images.length;
+      img.src = images[currentIndex];
+      img.setAttribute('data-current', currentIndex);
+    });
+  }, 3000);
+
+  // Thumbnail click handler
+  document.querySelectorAll('.thumbnail').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      const target = document.getElementById(thumb.dataset.target);
+      const index = +thumb.dataset.index;
+      const images = JSON.parse(target.getAttribute('data-images'));
+      target.src = images[index];
+      target.setAttribute('data-current', index);
+    });
+  });
+
+  document.querySelectorAll('.enquire-btn').forEach(btn => {
+    btn.onclick = () => document.getElementById('enquiryModal').classList.remove('hidden');
+  });
+}
+</script>
+
   </script>
   <script>
   const counters = document.querySelectorAll('.counter');
