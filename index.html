@@ -202,177 +202,148 @@
     💬 Chat with Us
   </a>
 <script>
-  const sheetUrl = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzcje6QXduHvEdQ5KT5HZqnJr7l_TDbKTPGi3lCQKC2qFSCUCLT0OQ3e4qOwh4sf3jLWQ/exec';
+  const SHEET_URL = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
 
-  window.onload = () => {
-    const splash = document.getElementById('splash');
-    splash.style.opacity = 0;
-    setTimeout(() => splash.remove(), 1000);
-  };
+  const role = sessionStorage.getItem("landkartRole");
+  if (role !== "admin") window.location.href = "login.html";
 
-  document.getElementById('menu-toggle')?.addEventListener('click', () => {
-    document.getElementById('nav-links')?.classList.toggle('hidden');
-  });
+  const form = document.getElementById('addListingForm');
+  const statusMessage = document.getElementById('statusMessage');
+  const submitBtn = document.getElementById('submitBtn');
 
-  const toggle = document.getElementById('theme-toggle');
-  const circle = document.getElementById('toggle-circle');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark');
-    toggle.checked = true;
-    circle.style.transform = 'translateX(20px)';
-  }
+    submitBtn.disabled = true;
+    statusMessage.textContent = 'Uploading...';
 
-  toggle?.addEventListener('change', () => {
-    if (toggle.checked) {
-      document.body.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      circle.style.transform = 'translateX(20px)';
-    } else {
-      document.body.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      circle.style.transform = 'translateX(0)';
-    }
-  });
-
-  function submitEnquiry(event) {
-    event.preventDefault();
-    const form = event.target;
-    const data = {
-      name: form.querySelector('input[placeholder="Your Name"]').value,
-      phone: form.querySelector('input[placeholder="Phone Number"]').value,
-      email: form.querySelector('input[placeholder="Email Address"]').value,
-      description: form.querySelector('textarea').value,
-      whatsapp: form.querySelector('#whatsapp').checked ? 'Yes' : 'No'
-    };
-
-    fetch('https://script.google.com/macros/s/AKfycbzOQ0xvN6UMM4AhlRpz4k9BCSXkGBXK6T4XcFKR5AiIEKrTx5E85gToRWCMjBeUHTU/exec', {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(() => {
-      alert('Thank you! Your enquiry has been submitted.');
-      form.reset();
-      document.getElementById('enquiryModal').classList.add('hidden');
-    }).catch(() => {
-      alert('Failed to submit. Try again later.');
-    });
-  }
-
-  async function loadListings(searchTerm = '') {
-    const response = await fetch(sheetUrl);
-    const listings = await response.json();
-    renderListings(listings, searchTerm);
-  }
-
-  function renderListings(listings, searchTerm = '') {
-    const container = document.getElementById('listings-container');
-    container.innerHTML = '';
-
-    const filtered = listings.filter(listing =>
-      listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (filtered.length === 0) {
-      container.innerHTML = '<p class="col-span-full text-center text-gray-500">No listings found.</p>';
+    const file = form.image.files[0];
+    if (!file) {
+      statusMessage.textContent = 'Please select an image file.';
+      submitBtn.disabled = false;
       return;
     }
 
-    filtered.forEach((listing, index) => {
-      const images = listing.image.split(',').map(url => url.trim());
-      const youtube = listing.youtube?.trim();
-      const uniqueId = `carousel-${index}`;
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const base64Data = reader.result;
 
-      const card = document.createElement('div');
-      card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
+      const formData = new FormData();
+      formData.append('image', base64Data);
+      formData.append('title', form.title.value.trim());
+      formData.append('description', form.description.value.trim());
+      formData.append('price', form.price.value.trim());
 
-      card.innerHTML = `
-        <div class="relative overflow-hidden rounded mb-2 h-40">
-          <img id="${uniqueId}" src="${images[0]}" class="w-full h-40 object-cover rounded carousel-img" data-images='${JSON.stringify(images)}' data-current="0">
-        </div>
-        <div class="flex space-x-2 mb-4 overflow-x-auto">
-          ${images.map((img, i) => `
-            <img src="${img}" class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 thumbnail" data-target="${uniqueId}" data-index="${i}">
-          `).join('')}
-        </div>
-        <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
-        <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
-        <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
-        <div class="flex gap-3 mt-3">
-          <button class="bg-green-600 text-white px-4 py-2 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
-          ${youtube ? `<button onclick="window.open('${youtube}', '_blank')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Watch Video</button>` : ''}
-        </div>
-      `;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: formData
+        });
 
-      container.appendChild(card);
-    });
+        const result = await res.json();
+        if (result.status === 'success') {
+          statusMessage.textContent = 'Listing added successfully!';
+          form.reset();
+          loadListings();
+        } else {
+          statusMessage.textContent = 'Failed: ' + result.message;
+        }
+      } catch (err) {
+        statusMessage.textContent = 'Error: ' + err.message;
+      }
+      submitBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  });
 
-    setInterval(() => {
-      document.querySelectorAll('.carousel-img').forEach(img => {
-        const images = JSON.parse(img.getAttribute('data-images'));
-        let currentIndex = +img.getAttribute('data-current');
-        currentIndex = (currentIndex + 1) % images.length;
-        img.src = images[currentIndex];
-        img.setAttribute('data-current', currentIndex);
+  async function loadListings() {
+    const container = document.getElementById('listingTable');
+    try {
+      const res = await fetch(SHEET_URL);
+      const listings = await res.json();
+
+      if (!listings.length) {
+        container.innerHTML = '<p>No listings found.</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      listings.forEach((listing, index) => {
+        const rowNumber = index + 2;
+        const images = listing.image.split(',').map(img => img.trim());
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'p-4 border rounded bg-gray-50';
+
+        wrapper.innerHTML = `
+          <div class="mb-2">
+            <strong>${listing.title}</strong> – ₹${listing.price}<br>
+            <small>${listing.description}</small>
+          </div>
+          <div class="flex flex-wrap gap-2 mb-2">
+            ${images.map((img, i) => `
+              <div class="relative">
+                <img src="${img}" class="w-20 h-14 object-cover rounded">
+                <button onclick="deletePhoto(${rowNumber}, ${i})" class="absolute top-0 right-0 text-xs bg-red-600 text-white px-1 rounded">×</button>
+              </div>`).join('')}
+          </div>
+          ${listing.youtube ? `<a href="${listing.youtube}" target="_blank" class="inline-block bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mb-2">Watch Video</a>` : ''}
+          <div class="mt-2 flex gap-2">
+            <input type="text" placeholder="Add or update YouTube URL" class="p-2 border rounded w-full" id="yt-${rowNumber}" value="${listing.youtube || ''}">
+            <button onclick="updateVideo(${rowNumber})" class="bg-blue-600 text-white px-2 py-1 rounded">Save</button>
+            <button onclick="removeVideo(${rowNumber})" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>
+            <button onclick="deleteListing(${rowNumber})" class="ml-auto text-red-600 hover:underline">Delete Listing</button>
+          </div>
+        `;
+
+        container.appendChild(wrapper);
       });
-    }, 3000);
-
-    document.querySelectorAll('.thumbnail').forEach(thumb => {
-      thumb.addEventListener('click', () => {
-        const target = document.getElementById(thumb.dataset.target);
-        const index = +thumb.dataset.index;
-        const images = JSON.parse(target.getAttribute('data-images'));
-        target.src = images[index];
-        target.setAttribute('data-current', index);
-      });
-    });
-
-    document.querySelectorAll('.enquire-btn').forEach(btn => {
-      btn.onclick = () => document.getElementById('enquiryModal').classList.remove('hidden');
-    });
+    } catch (err) {
+      container.innerHTML = '<p>Error loading listings.</p>';
+    }
   }
 
-  const counters = document.querySelectorAll('.counter');
+  async function deleteListing(row) {
+    if (!confirm('Are you sure you want to delete this listing?')) return;
+    const res = await fetch(API_URL + '?deleteRow=' + row);
+    const result = await res.json();
+    if (result.status === 'success') loadListings();
+    else alert('Failed to delete: ' + result.message);
+  }
 
-  const animateCounters = () => {
-    counters.forEach(counter => {
-      const updateCount = () => {
-        const target = +counter.getAttribute('data-target');
-        const current = +counter.innerText;
-        const speed = 50;
-        const increment = target / speed;
-
-        if (current < target) {
-          counter.innerText = Math.ceil(current + increment);
-          setTimeout(updateCount, 40);
-        } else {
-          counter.innerText = target + (target === 100 ? '%' : '+');
-        }
-      };
-      updateCount();
-    });
-  };
-
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) {
-      animateCounters();
-      observer.disconnect();
-    }
-  });
-
-  observer.observe(document.querySelector('.counter'));
-
-  // 🔥 TRIGGER listings on load
-  window.addEventListener("DOMContentLoaded", () => {
+  async function deletePhoto(row, index) {
+    const confirmed = confirm('Delete this image?');
+    if (!confirmed) return;
+    await fetch(API_URL + `?removePhotoRow=${row}&photoIndex=${index}`);
     loadListings();
-  });
+  }
 
-  // 🔍 Enable search filtering
-  document.getElementById('search-bar')?.addEventListener('input', e => {
-    loadListings(e.target.value);
-  });
+  async function updateVideo(row) {
+    const input = document.getElementById(`yt-${row}`);
+    const value = input.value.trim();
+    await fetch(API_URL + `?updateVideoRow=${row}&video=${encodeURIComponent(value)}`);
+    alert('YouTube video updated!');
+    loadListings();
+  }
+
+  async function removeVideo(row) {
+    await fetch(API_URL + `?removeVideoRow=${row}`);
+    alert('YouTube video removed.');
+    loadListings();
+  }
+
+  // Logout button action
+  const logoutButton = document.createElement('button');
+  logoutButton.textContent = 'Logout';
+  logoutButton.className = 'mt-6 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700';
+  logoutButton.onclick = () => {
+    sessionStorage.removeItem("landkartRole");
+    window.location.href = "index.html";
+  };
+  document.querySelector('.container').appendChild(logoutButton);
+
+  loadListings();
 </script>
 </body>
 </html>
