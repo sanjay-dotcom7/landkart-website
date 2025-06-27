@@ -42,8 +42,7 @@
       <p>Loading listings...</p>
     </div>
   </div>
-
- <script>
+<script>
   const API_URL = 'https://script.google.com/macros/s/AKfycbzcje6QXduHvEdQ5KT5HZqnJr7l_TDbKTPGi3lCQKC2qFSCUCLT0OQ3e4qOwh4sf3jLWQ/exec';
   const SHEET_URL = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
 
@@ -173,12 +172,19 @@
     const reader = new FileReader();
     reader.onload = async function () {
       const base64Image = reader.result;
-      await fetch(API_URL + `?addPhotoRow=${row}`, {
-        method: 'POST',
-        body: JSON.stringify({ image: base64Image }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      loadListings();
+      const formData = new FormData();
+      formData.append('addPhotoRow', row);
+      formData.append('image', base64Image);
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: formData
+        });
+        loadListings();
+      } catch (err) {
+        alert('Error uploading photo: ' + err.message);
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -208,6 +214,7 @@
 
   loadListings();
 </script>
+
 
 </body>
 </html>
