@@ -101,10 +101,15 @@
       <li><a href="#contact" class="block px-2 py-1 hover:text-green-500">Contact</a></li>
       <li><a href="login.html" class="block px-2 py-1 hover:text-green-500">Admin Login</a></li>
      <li>
-  <button onclick="document.body.classList.toggle('dark')" class="text-sm text-gray-500 hover:text-green-600">
-    Toggle Dark Mode
-  </button>
+  <label class="flex items-center space-x-2 cursor-pointer">
+    <span class="text-sm text-gray-600 dark:text-gray-300">Dark Mode</span>
+    <input id="theme-toggle" type="checkbox" class="hidden">
+    <div class="w-10 h-5 bg-gray-300 dark:bg-gray-600 rounded-full relative transition">
+      <div id="toggle-circle" class="w-4 h-4 bg-white absolute top-0.5 left-0.5 rounded-full shadow transition-transform"></div>
+    </div>
+  </label>
 </li>
+
 
     </ul>
   </nav>
@@ -323,6 +328,29 @@
   });
 
   observer.observe(document.querySelector('.counter'));
+</script>
+<script>
+  const toggle = document.getElementById('theme-toggle');
+  const circle = document.getElementById('toggle-circle');
+
+  // Load mode from localStorage
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+    toggle.checked = true;
+    circle.style.transform = 'translateX(20px)';
+  }
+
+  toggle.addEventListener('change', () => {
+    if (toggle.checked) {
+      document.body.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      circle.style.transform = 'translateX(20px)';
+    } else {
+      document.body.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      circle.style.transform = 'translateX(0)';
+    }
+  });
 </script>
 
 </body>
