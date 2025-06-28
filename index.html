@@ -281,37 +281,37 @@
     }
 
     filtered.forEach((listing, index) => {
-      const images = listing.image.split(',').map(url => url.trim());
-     const youtube = listing.youtube && listing.youtube.trim() !== '' ? listing.youtube.trim() : null;
+  const images = listing.image.split(',').map(url => url.trim());
+  const youtube = listing.youtube?.trim();
+  const uniqueId = `carousel-${index}`;
 
-      const uniqueId = `carousel-${index}`;
+  const card = document.createElement('div');
+  card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
 
-      const card = document.createElement('div');
-      card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
+  card.innerHTML = `
+    <div class="relative overflow-hidden rounded mb-2 h-40">
+      <img id="${uniqueId}" src="${images[0]}" class="w-full h-40 object-cover rounded carousel-img" data-images='${JSON.stringify(images)}' data-current="0">
+    </div>
+    <div class="flex space-x-2 mb-4 overflow-x-auto">
+      ${images.map((img, i) => `
+        <img src="${img}" class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 thumbnail" data-target="${uniqueId}" data-index="${i}">
+      `).join('')}
+    </div>
+    <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
+    <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
+    <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
+    <div class="flex gap-3 mt-3">
+      <button class="bg-green-600 text-white px-4 py-2 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
+      ${youtube && youtube.startsWith('http') ? `
+        <a href="${youtube}" target="_blank" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+          Watch Video
+        </a>` : ''}
+    </div>
+  `;
 
-     card.innerHTML = `
-  <div class="relative overflow-hidden rounded mb-2 h-40">
-    <img id="${uniqueId}" src="${images[0]}" class="w-full h-40 object-cover rounded carousel-img" data-images='${JSON.stringify(images)}' data-current="0">
-  </div>
-  <div class="flex space-x-2 mb-4 overflow-x-auto">
-    ${images.map((img, i) => `
-      <img src="${img}" class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 thumbnail" data-target="${uniqueId}" data-index="${i}">
-    `).join('')}
-  </div>
-  <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
-  <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
-  <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
-  <div class="flex gap-3 mt-3">
-    <button class="bg-green-600 text-white px-4 py-2 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
-    ${listing.youtube && listing.youtube.startsWith('http') ? `
-      <a href="${listing.youtube}" target="_blank" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Watch Video</a>
-    ` : ''}
-  </div>
-`;
+  container.appendChild(card);
+});
 
-
-      container.appendChild(card);
-    });
 
     setInterval(() => {
       document.querySelectorAll('.carousel-img').forEach(img => {
