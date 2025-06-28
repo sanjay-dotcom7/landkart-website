@@ -104,16 +104,12 @@ form.addEventListener('submit', async (e) => {
 
 
 
-async function sendData(data) {
+async function sendData(formData) {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      body: formData
     });
-
     const result = await res.json();
     if (result.status === 'success') {
       statusMessage.textContent = editRow.value ? 'Listing updated!' : 'Listing added!';
@@ -129,6 +125,7 @@ async function sendData(data) {
   }
   submitBtn.disabled = false;
 }
+
 
 async function loadListings() {
   const container = document.getElementById('listingTable');
