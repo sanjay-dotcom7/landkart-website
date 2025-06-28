@@ -294,7 +294,7 @@
   const searchTerm = document.getElementById('search-bar')?.value.trim().toLowerCase() || '';
 
   const filtered = listings.filter(listing => {
-    const matchesType = !category || (listing.type?.toLowerCase() === category.toLowerCase());
+   const matchesType = category === 'all' || listing.type?.toLowerCase() === category.toLowerCase();
     const matchesSearch =
       listing.title?.toLowerCase().includes(searchTerm) ||
       listing.description?.toLowerCase().includes(searchTerm);
