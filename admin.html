@@ -64,20 +64,24 @@ form.addEventListener('submit', async (e) => {
 
   const isEdit = editRow.value;
   const file = form.image.files[0];
+
+  const title = form.title.value.trim();
+  const description = form.description.value.trim();
+  const price = form.price.value.trim();
+  const youtube = form.youtube.value.trim();
+
   const formData = new FormData();
-
-  formData.append('title', form.title.value.trim());
-  formData.append('description', form.description.value.trim());
-  formData.append('price', form.price.value.trim());
-  formData.append('youtube', form.youtube.value.trim());
-
+  formData.append('title', title);
+  formData.append('description', description);
+  formData.append('price', price);
+  formData.append('youtube', youtube);
   if (isEdit) formData.append('editRow', isEdit);
 
   if (file) {
     const reader = new FileReader();
     reader.onload = async function () {
       formData.append('image', reader.result);
-      await sendData(formData);
+      await sendData(formData); // Send only after image + all fields appended
     };
     reader.readAsDataURL(file);
   } else {
@@ -85,6 +89,7 @@ form.addEventListener('submit', async (e) => {
     await sendData(formData);
   }
 });
+
 
 async function sendData(formData) {
   try {
