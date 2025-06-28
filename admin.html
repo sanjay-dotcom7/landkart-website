@@ -48,6 +48,8 @@
     <button onclick="logout()" class="mt-6 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
   </div>
 
+<!-- ... all the <head> part is unchanged ... -->
+
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzcje6QXduHvEdQ5KT5HZqnJr7l_TDbKTPGi3lCQKC2qFSCUCLT0OQ3e4qOwh4sf3jLWQ/exec';
 const SHEET_URL = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
@@ -57,7 +59,6 @@ const statusMessage = document.getElementById('statusMessage');
 const submitBtn = document.getElementById('submitBtn');
 const editRow = document.getElementById('editRow');
 
-<script>
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   submitBtn.disabled = true;
@@ -90,9 +91,6 @@ form.addEventListener('submit', async (e) => {
     await sendData(formData);
   }
 });
-
-
-
 
 async function sendData(formData) {
   try {
