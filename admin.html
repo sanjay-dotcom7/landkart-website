@@ -108,5 +108,62 @@ form.addEventListener('submit', async (e) => {
   submitBtn.disabled = false;
 });
 </script>
+  <script>
+async function loadListings() {
+  const container = document.getElementById('listingTable');
+  try {
+    const res = await fetch('https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1');
+    const listings = await res.json();
+
+    if (!listings.length) {
+      container.innerHTML = '<p>No listings found.</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    listings.forEach((listing, index) => {
+      const rowNumber = index + 2;
+      const images = (listing.image || '').split(',').map(img => img.trim()).filter(Boolean);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'p-4 border rounded bg-gray-50';
+
+      wrapper.innerHTML = `
+        <div class="mb-2">
+          <strong>${listing.title}</strong> – ₹${listing.price}<br>
+          <small>${listing.description}</small>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-2">
+          ${images.map((img, i) => `
+            <div class="relative">
+              <img src="${img}" class="w-20 h-14 object-cover rounded">
+              <button onclick="deletePhoto(${rowNumber}, ${i})" class="absolute top-0 right-0 text-xs bg-red-600 text-white px-1 rounded">×</button>
+            </div>`).join('')}
+        </div>
+        <div class="flex items-center gap-2 mb-3">
+          <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
+          <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <input type="text" placeholder="Paste multiple image URLs, comma-separated" class="p-2 border rounded w-full" id="multi-${rowNumber}">
+          <button onclick="addMultiplePhotos(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add URLs</button>
+        </div>
+        ${listing.youtube ? `<a href="${listing.youtube}" target="_blank" class="inline-block bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mb-2">Watch Video</a>` : ''}
+        <div class="mt-2 flex gap-2">
+          <input type="text" placeholder="Add or update YouTube URL" class="p-2 border rounded w-full" id="yt-${rowNumber}" value="${listing.youtube || ''}">
+          <button onclick="updateVideo(${rowNumber})" class="bg-blue-600 text-white px-2 py-1 rounded">Save</button>
+          <button onclick="removeVideo(${rowNumber})" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>
+          <button onclick="deleteListing(${rowNumber})" class="ml-auto text-red-600 hover:underline">Delete Listing</button>
+        </div>
+      `;
+      container.appendChild(wrapper);
+    });
+  } catch (err) {
+    container.innerHTML = '<p>Error loading listings: ' + err.message + '</p>';
+  }
+}
+    loadlistings();
+</script>
+
 </body>
 </html>
