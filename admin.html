@@ -30,7 +30,7 @@
       <input id="price" name="price" type="number" min="0" required />
 
       <label for="image">Upload Image</label>
-      <input id="image" name="image" type="file" accept="image/*" required />
+     <input id="image" name="image" type="file" accept="image/*" multiple required />
 
       <button type="submit" id="submitBtn">Add Listing</button>
     </form>
@@ -54,33 +54,54 @@
   const submitBtn = document.getElementById('submitBtn');
 
   form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    submitBtn.disabled = true;
-    statusMessage.textContent = 'Uploading...';
+  submitBtn.disabled = true;
+  statusMessage.textContent = 'Uploading...';
 
-    const file = form.image.files[0];
-    if (!file) {
-      statusMessage.textContent = 'Please select an image file.';
-      submitBtn.disabled = false;
-      return;
+  const files = form.image.files;
+  if (!files.length) {
+    statusMessage.textContent = 'Please select at least one image.';
+    submitBtn.disabled = false;
+    return;
+  }
+
+  const promises = Array.from(files).map(file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  });
+
+  try {
+    const base64Images = await Promise.all(promises);
+    const formData = new FormData();
+    formData.append('title', form.title.value.trim());
+    formData.append('description', form.description.value.trim());
+    formData.append('price', form.price.value.trim());
+    formData.append('image', base64Images.join(',')); // comma-separated list of base64 images
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await res.json();
+    if (result.status === 'success') {
+      statusMessage.textContent = 'Listing added successfully!';
+      form.reset();
+      loadListings();
+    } else {
+      statusMessage.textContent = 'Failed: ' + result.message;
     }
+  } catch (err) {
+    statusMessage.textContent = 'Error: ' + err.message;
+  }
 
-    const reader = new FileReader();
-    reader.onload = async function () {
-      const base64Data = reader.result;
-
-      const formData = new FormData();
-      formData.append('image', base64Data);
-      formData.append('title', form.title.value.trim());
-      formData.append('description', form.description.value.trim());
-      formData.append('price', form.price.value.trim());
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          body: formData
-        });
+  submitBtn.disabled = false;
+});
 
         const result = await res.json();
         if (result.status === 'success') {
@@ -130,9 +151,14 @@
               </div>`).join('')}
           </div>
           <div class="flex items-center gap-2 mb-3">
-            <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
-            <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
-          </div>
+  <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
+  <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
+</div>
+<div class="flex items-center gap-2 mt-2">
+  <input type="text" placeholder="Paste multiple image URLs, comma-separated" class="p-2 border rounded w-full" id="multi-${rowNumber}">
+  <button onclick="addMultiplePhotos(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add URLs</button>
+</div>
+
           <div class="flex items-center gap-2 mb-3">
              <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
              <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
