@@ -35,6 +35,14 @@
 
       <label for="youtube">YouTube Link (optional)</label>
       <input id="youtube" name="youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." />
+      <label for="type">Category</label>
+      <select id="type" name="type" required>
+      <option value="">-- Select Category --</option>
+      <option value="farm">Farm</option>
+      <option value="residential">Residential</option>
+      <option value="commercial">Commercial</option>
+      </select>
+
 
       <button type="submit" id="submitBtn">Add Listing</button>
     </form>
@@ -69,12 +77,16 @@ form.addEventListener('submit', async (e) => {
   const description = form.description.value.trim();
   const price = form.price.value.trim();
   const youtube = form.youtube.value.trim();
+  const type = form.type.value.trim();
+ 
+
 
   const formData = new FormData();
   formData.append('title', title);
   formData.append('description', description);
   formData.append('price', price);
   formData.append('youtube', youtube);
+  formData.append('type', type);
   if (isEdit) formData.append('editRow', isEdit);
 
   if (file) {
@@ -145,6 +157,8 @@ function editListing(row, listing) {
   document.getElementById('description').value = listing.description || '';
   document.getElementById('price').value = listing.price || '';
   document.getElementById('youtube').value = listing.youtube || '';
+  document.getElementById('type').value = listing.type || '';
+
   document.getElementById('editRow').value = row;
   submitBtn.textContent = 'Update Listing';
   window.scrollTo({ top: 0, behavior: 'smooth' });
