@@ -29,8 +29,11 @@
       <label for="price">Price (₹)</label>
       <input id="price" name="price" type="number" min="0" required />
 
-      <label for="image">Upload Image</label>
-     <input id="image" name="image" type="file" accept="image/*" multiple required />
+      <label for="image">Add images for the land</label>
+      <input id="image" name="image" type="file" accept="image/*" multiple required />
+
+      <label for="youtube">Mention YouTube link (optional)</label>
+      <input id="youtube" name="youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." />
 
       <button type="submit" id="submitBtn">Add Listing</button>
     </form>
@@ -42,18 +45,19 @@
       <p>Loading listings...</p>
     </div>
   </div>
+
 <script>
-  const API_URL = 'https://script.google.com/macros/s/AKfycbzcje6QXduHvEdQ5KT5HZqnJr7l_TDbKTPGi3lCQKC2qFSCUCLT0OQ3e4qOwh4sf3jLWQ/exec';
-  const SHEET_URL = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzcje6QXduHvEdQ5KT5HZqnJr7l_TDbKTPGi3lCQKC2qFSCUCLT0OQ3e4qOwh4sf3jLWQ/exec';
+const SHEET_URL = 'https://opensheet.elk.sh/10gC7KV7HEouX1LEV6jd1ODZzVPwq46nm-rfOwYZKmII/Sheet1';
 
-  const role = sessionStorage.getItem("landkartRole");
-  if (role !== "admin") window.location.href = "login.html";
+const role = sessionStorage.getItem("landkartRole");
+if (role !== "admin") window.location.href = "login.html";
 
-  const form = document.getElementById('addListingForm');
-  const statusMessage = document.getElementById('statusMessage');
-  const submitBtn = document.getElementById('submitBtn');
+const form = document.getElementById('addListingForm');
+const statusMessage = document.getElementById('statusMessage');
+const submitBtn = document.getElementById('submitBtn');
 
-  form.addEventListener('submit', async (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   submitBtn.disabled = true;
@@ -66,14 +70,12 @@
     return;
   }
 
-  const promises = Array.from(files).map(file => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  });
+  const promises = Array.from(files).map(file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  }));
 
   try {
     const base64Images = await Promise.all(promises);
@@ -81,7 +83,10 @@
     formData.append('title', form.title.value.trim());
     formData.append('description', form.description.value.trim());
     formData.append('price', form.price.value.trim());
-    formData.append('image', base64Images.join(',')); // comma-separated list of base64 images
+    formData.append('image', base64Images.join(','));
+    if (form.youtube.value.trim()) {
+      formData.append('youtube', form.youtube.value.trim());
+    }
 
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -102,171 +107,6 @@
 
   submitBtn.disabled = false;
 });
-
-        const result = await res.json();
-        if (result.status === 'success') {
-          statusMessage.textContent = 'Listing added successfully!';
-          form.reset();
-          loadListings();
-        } else {
-          statusMessage.textContent = 'Failed: ' + result.message;
-        }
-      } catch (err) {
-        statusMessage.textContent = 'Error: ' + err.message;
-      }
-      submitBtn.disabled = false;
-    };
-    reader.readAsDataURL(file);
-  });
-
-  async function loadListings() {
-    const container = document.getElementById('listingTable');
-    try {
-      const res = await fetch(SHEET_URL);
-      const listings = await res.json();
-
-      if (!listings.length) {
-        container.innerHTML = '<p>No listings found.</p>';
-        return;
-      }
-
-      container.innerHTML = '';
-      listings.forEach((listing, index) => {
-        const rowNumber = index + 2;
-        const images = (listing.image || '').split(',').map(img => img.trim()).filter(Boolean);
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'p-4 border rounded bg-gray-50';
-
-        wrapper.innerHTML = `
-          <div class="mb-2">
-            <strong>${listing.title}</strong> – ₹${listing.price}<br>
-            <small>${listing.description}</small>
-          </div>
-          <div class="flex flex-wrap gap-2 mb-2">
-            ${images.map((img, i) => `
-              <div class="relative">
-                <img src="${img}" class="w-20 h-14 object-cover rounded">
-                <button onclick="deletePhoto(${rowNumber}, ${i})" class="absolute top-0 right-0 text-xs bg-red-600 text-white px-1 rounded">×</button>
-              </div>`).join('')}
-          </div>
-          <div class="flex items-center gap-2 mb-3">
-  <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
-  <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
-</div>
-<div class="flex items-center gap-2 mt-2">
-  <input type="text" placeholder="Paste multiple image URLs, comma-separated" class="p-2 border rounded w-full" id="multi-${rowNumber}">
-  <button onclick="addMultiplePhotos(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add URLs</button>
-</div>
-
-          <div class="flex items-center gap-2 mb-3">
-             <input type="file" accept="image/*" id="photo-${rowNumber}" class="p-1 text-sm border rounded">
-             <button onclick="addPhoto(${rowNumber})" class="bg-green-600 text-white px-2 py-1 rounded">Add Photo</button>
-          </div>
-
-          ${listing.youtube ? `<a href="${listing.youtube}" target="_blank" class="inline-block bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mb-2">Watch Video</a>` : ''}
-          <div class="mt-2 flex gap-2">
-            <input type="text" placeholder="Add or update YouTube URL" class="p-2 border rounded w-full" id="yt-${rowNumber}" value="${listing.youtube || ''}">
-            <button onclick="updateVideo(${rowNumber})" class="bg-blue-600 text-white px-2 py-1 rounded">Save</button>
-            <button onclick="removeVideo(${rowNumber})" class="bg-red-500 text-white px-2 py-1 rounded">Remove</button>
-            <button onclick="deleteListing(${rowNumber})" class="ml-auto text-red-600 hover:underline">Delete Listing</button>
-          </div>
-        `;
-
-        container.appendChild(wrapper);
-      });
-    } catch (err) {
-      container.innerHTML = '<p>Error loading listings.</p>';
-    }
-  }
-
-  async function deleteListing(row) {
-    if (!confirm('Are you sure you want to delete this listing?')) return;
-    const res = await fetch(API_URL + '?deleteRow=' + row);
-    const result = await res.json();
-    if (result.status === 'success') loadListings();
-    else alert('Failed to delete: ' + result.message);
-  }
-
-  async function deletePhoto(row, index) {
-    const confirmed = confirm('Delete this image?');
-    if (!confirmed) return;
-    await fetch(API_URL + `?removePhotoRow=${row}&photoIndex=${index}`);
-    loadListings();
-  }
-
-  async function addPhoto(row) {
-    const fileInput = document.getElementById(`photo-${row}`);
-    const file = fileInput.files[0];
-    if (!file) return alert("Please choose an image file to add.");
-
-    const reader = new FileReader();
-    reader.onload = async function () {
-      const base64Image = reader.result;
-      const formData = new FormData();
-      formData.append('addPhotoRow', row);
-      formData.append('image', base64Image);
-
-      try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: formData
-        });
-        loadListings();
-      } catch (err) {
-        alert('Error uploading photo: ' + err.message);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
-  async function updateVideo(row) {
-    const input = document.getElementById(`yt-${row}`);
-    const value = input.value.trim();
-    await fetch(API_URL + `?updateVideoRow=${row}&video=${encodeURIComponent(value)}`);
-    alert('YouTube video updated!');
-    loadListings();
-  }
-
-  async function removeVideo(row) {
-    await fetch(API_URL + `?removeVideoRow=${row}`);
-    alert('YouTube video removed.');
-    loadListings();
-  }
-  async function addMultiplePhotos(row) {
-  const input = document.getElementById(`multi-${row}`);
-  const newUrls = input.value.trim();
-  if (!newUrls) return alert("Please enter at least one URL.");
-
-  const formData = new FormData();
-  formData.append("addPhotoRow", row);
-  formData.append("image", newUrls);
-
-  try {
-    await fetch(API_URL, {
-      method: "POST",
-      body: formData
-    });
-    input.value = '';
-    loadListings();
-  } catch (err) {
-    alert("Failed to add images: " + err.message);
-  }
-}
-
-
-  const logoutButton = document.createElement('button');
-  logoutButton.textContent = 'Logout';
-  logoutButton.className = 'mt-6 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700';
-  logoutButton.onclick = () => {
-    sessionStorage.removeItem("landkartRole");
-    window.location.href = "index.html";
-  };
-  document.querySelector('.container').appendChild(logoutButton);
-
-  loadListings();
 </script>
-
-
 </body>
 </html>
