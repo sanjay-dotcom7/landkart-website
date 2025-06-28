@@ -282,7 +282,8 @@
 
     filtered.forEach((listing, index) => {
       const images = listing.image.split(',').map(url => url.trim());
-      const youtube = listing.youtube?.trim();
+     const youtube = listing.youtube && listing.youtube.trim() !== '' ? listing.youtube.trim() : null;
+
       const uniqueId = `carousel-${index}`;
 
       const card = document.createElement('div');
@@ -297,6 +298,14 @@
             <img src="${img}" class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 thumbnail" data-target="${uniqueId}" data-index="${i}">
           `).join('')}
         </div>
+        <div class="flex gap-3 mt-3">
+  <button class="bg-green-600 text-white px-4 py-2 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
+  ${youtube ? `
+    <a href="${youtube}" target="_blank" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+      Watch Video
+    </a>` : ''}
+</div>
+
         <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
         <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
         <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
