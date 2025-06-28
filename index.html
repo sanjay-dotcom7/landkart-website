@@ -285,83 +285,91 @@
     });
   }
 
-  async function loadListings(searchTerm = '') {
-    const response = await fetch(sheetUrl);
-    const listings = await response.json();
-    renderListings(listings, searchTerm);
+  async function loadListings(category = '') {
+  const response = await fetch(sheetUrl);
+  const listings = await response.json();
+
+  const searchTerm = document.getElementById('search-bar')?.value.trim().toLowerCase() || '';
+
+  const filtered = listings.filter(listing => {
+    const matchesType = !category || (listing.type?.toLowerCase() === category.toLowerCase());
+    const matchesSearch =
+      listing.title?.toLowerCase().includes(searchTerm) ||
+      listing.description?.toLowerCase().includes(searchTerm);
+    return matchesType && matchesSearch;
+  });
+
+  renderListings(filtered);
+}
+
+function renderListings(listings) {
+  const container = document.getElementById('listings-container');
+  container.innerHTML = '';
+
+  if (!listings.length) {
+    container.innerHTML = '<p class="col-span-full text-center text-gray-500">No listings found.</p>';
+    return;
   }
 
-  function renderListings(listings, searchTerm = '') {
-    const container = document.getElementById('listings-container');
-    container.innerHTML = '';
+  listings.forEach((listing, index) => {
+    const images = listing.image?.split(',').map(url => url.trim()).filter(Boolean) || ['placeholder.jpg'];
+    const youtube = listing.youtube?.trim();
+    const uniqueId = `carousel-${index}`;
 
-    const filtered = listings.filter(listing =>
-      listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      listing.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const card = document.createElement('div');
+    card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
 
-    if (filtered.length === 0) {
-      container.innerHTML = '<p class="col-span-full text-center text-gray-500">No listings found.</p>';
-      return;
-    }
+    card.innerHTML = `
+      <div class="relative overflow-hidden rounded mb-2 h-40">
+        <img id="${uniqueId}" src="${images[0]}" class="w-full h-40 object-cover rounded carousel-img" data-images='${JSON.stringify(images)}' data-current="0">
+      </div>
+      <div class="flex space-x-2 mb-4 overflow-x-auto">
+        ${images.map((img, i) => `
+          <img src="${img}" class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 thumbnail" data-target="${uniqueId}" data-index="${i}">
+        `).join('')}
+      </div>
+      <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
+      <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
+      <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
+      <div class="flex gap-3 mt-3">
+        <button class="bg-green-600 text-white px-4 py-2 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
+        ${youtube && youtube.startsWith('http') ? `
+          <a href="${youtube}" target="_blank" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+            Watch Video
+          </a>` : ''}
+      </div>
+    `;
 
-    filtered.forEach((listing, index) => {
-  const images = listing.image.split(',').map(url => url.trim());
-  const youtube = listing.youtube?.trim();
-  const uniqueId = `carousel-${index}`;
+    container.appendChild(card);
+  });
 
-  const card = document.createElement('div');
-  card.className = 'bg-white shadow-md rounded-lg p-4 fade-in';
-
-  card.innerHTML = `
-    <div class="relative overflow-hidden rounded mb-2 h-40">
-      <img id="${uniqueId}" src="${images[0]}" class="w-full h-40 object-cover rounded carousel-img" data-images='${JSON.stringify(images)}' data-current="0">
-    </div>
-    <div class="flex space-x-2 mb-4 overflow-x-auto">
-      ${images.map((img, i) => `
-        <img src="${img}" class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 thumbnail" data-target="${uniqueId}" data-index="${i}">
-      `).join('')}
-    </div>
-    <h2 class="text-xl font-semibold text-green-700">${listing.title}</h2>
-    <p class="text-gray-700 mt-2 text-sm">${listing.description}</p>
-    <p class="text-green-700 font-bold mt-2 text-lg">₹${listing.price}</p>
-    <div class="flex gap-3 mt-3">
-      <button class="bg-green-600 text-white px-4 py-2 rounded enquire-btn hover:bg-green-700">Enquire Now</button>
-      ${youtube && youtube.startsWith('http') ? `
-        <a href="${youtube}" target="_blank" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-          Watch Video
-        </a>` : ''}
-    </div>
-  `;
-
-  container.appendChild(card);
-});
-
-
-    setInterval(() => {
-      document.querySelectorAll('.carousel-img').forEach(img => {
-        const images = JSON.parse(img.getAttribute('data-images'));
-        let currentIndex = +img.getAttribute('data-current');
-        currentIndex = (currentIndex + 1) % images.length;
-        img.src = images[currentIndex];
-        img.setAttribute('data-current', currentIndex);
-      });
-    }, 3000);
-
-    document.querySelectorAll('.thumbnail').forEach(thumb => {
-      thumb.addEventListener('click', () => {
-        const target = document.getElementById(thumb.dataset.target);
-        const index = +thumb.dataset.index;
-        const images = JSON.parse(target.getAttribute('data-images'));
-        target.src = images[index];
-        target.setAttribute('data-current', index);
-      });
+  // Carousel autoplay
+  setInterval(() => {
+    document.querySelectorAll('.carousel-img').forEach(img => {
+      const images = JSON.parse(img.getAttribute('data-images'));
+      let currentIndex = +img.getAttribute('data-current');
+      currentIndex = (currentIndex + 1) % images.length;
+      img.src = images[currentIndex];
+      img.setAttribute('data-current', currentIndex);
     });
+  }, 3000);
 
-    document.querySelectorAll('.enquire-btn').forEach(btn => {
-      btn.onclick = () => document.getElementById('enquiryModal').classList.remove('hidden');
+  // Thumbnail click
+  document.querySelectorAll('.thumbnail').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      const target = document.getElementById(thumb.dataset.target);
+      const index = +thumb.dataset.index;
+      const images = JSON.parse(target.getAttribute('data-images'));
+      target.src = images[index];
+      target.setAttribute('data-current', index);
     });
-  }
+  });
+
+  // Enquiry button
+  document.querySelectorAll('.enquire-btn').forEach(btn => {
+    btn.onclick = () => document.getElementById('enquiryModal').classList.remove('hidden');
+  });
+}
 
   const counters = document.querySelectorAll('.counter');
 
