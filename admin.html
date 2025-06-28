@@ -78,34 +78,42 @@ form.addEventListener('submit', async (e) => {
   const price = form.price.value.trim();
   const youtube = form.youtube.value.trim();
   const type = form.type.value.trim();
- 
 
+  const payload = {
+    title,
+    description,
+    price,
+    youtube,
+    type
+  };
 
-  const formData = new FormData();
-  formData.append('title', title);
-  formData.append('description', description);
-  formData.append('price', price);
-  formData.append('youtube', youtube);
-  formData.append('type', type);
-  if (isEdit) formData.append('editRow', isEdit);
+  if (isEdit) payload.editRow = isEdit;
 
   if (file) {
     const reader = new FileReader();
     reader.onload = async function () {
-      formData.append('image', reader.result);
-      await sendData(formData); // Send only after image + all fields appended
+      payload.image = reader.result;
+      await sendData(payload);
     };
     reader.readAsDataURL(file);
   } else {
-    formData.append('image', 'NO_IMAGE_UPDATE');
-    await sendData(formData);
+    payload.image = 'NO_IMAGE_UPDATE';
+    await sendData(payload);
   }
 });
 
 
-async function sendData(formData) {
+
+async function sendData(data) {
   try {
-    const res = await fetch(API_URL, { method: 'POST', body: formData });
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
     const result = await res.json();
     if (result.status === 'success') {
       statusMessage.textContent = editRow.value ? 'Listing updated!' : 'Listing added!';
