@@ -79,9 +79,11 @@ form.addEventListener('submit', async (e) => {
       await sendData(formData);
     };
     reader.readAsDataURL(file);
-  } else {
+    } else {
+    formData.append('image', 'NO_UPDATE'); // placeholder to indicate no new image
     await sendData(formData);
   }
+
 });
 
 async function sendData(formData) {
