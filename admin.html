@@ -57,6 +57,7 @@ const statusMessage = document.getElementById('statusMessage');
 const submitBtn = document.getElementById('submitBtn');
 const editRow = document.getElementById('editRow');
 
+<script>
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   submitBtn.disabled = true;
@@ -89,6 +90,8 @@ form.addEventListener('submit', async (e) => {
     await sendData(formData);
   }
 });
+
+
 
 
 async function sendData(formData) {
