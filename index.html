@@ -421,9 +421,10 @@ function renderListings(listings) {
 
   observer.observe(document.querySelector('.counter'));
 
-  window.addEventListener("DOMContentLoaded", () => {
-    loadListings();
-  });
+window.addEventListener("DOMContentLoaded", () => {
+  loadListings('all');
+});
+
 
   document.getElementById('search-bar')?.addEventListener('input', e => {
     loadListings(e.target.value);
