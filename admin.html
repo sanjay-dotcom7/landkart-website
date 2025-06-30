@@ -70,57 +70,27 @@ form.addEventListener('submit', async (e) => {
   submitBtn.disabled = true;
   statusMessage.textContent = 'Uploading...';
 
-  const isEdit = editRow.value;
-  const title = form.title.value.trim();
-  const description = form.description.value.trim();
-  const price = form.price.value.trim();
-  const youtube = form.youtube.value.trim();
-  const type = form.type.value.trim();
-  const files = form.image.files;
-
   const formData = new FormData();
-  formData.append('title', title);
-  formData.append('description', description);
-  formData.append('price', price);
-  formData.append('youtube', youtube);
-  formData.append('type', type);
-  if (isEdit) formData.append('editRow', isEdit);
+  formData.append('title', form.title.value.trim());
+  formData.append('description', form.description.value.trim());
+  formData.append('price', form.price.value.trim());
+  formData.append('youtube', form.youtube.value.trim());
+  formData.append('type', form.type.value.trim());
 
-  const imageUrls = [];
-
-  if (files.length > 0) {
-    let processed = 0;
-    for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
-      reader.onloadend = async function () {
-        const result = reader.result || '';
-        if (result.startsWith("data:image")) {
-          imageUrls.push(result);
-        }
-        processed++;
-        if (processed === files.length) {
-          formData.append('image', imageUrls.join(','));
-          await sendData(formData);
-        }
-      };
-      reader.readAsDataURL(files[i]);
-    }
-  } else {
-    formData.append('image', 'NO_IMAGE_UPDATE');
-    await sendData(formData);
+  const files = form.image.files;
+  for (let i = 0; i < files.length; i++) {
+    formData.append('images', files[i]);
   }
-});
 
-async function sendData(formData) {
+  if (editRow.value) {
+    formData.append('editRow', editRow.value);
+  }
+
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: formData
-    });
-
+    const res = await fetch(API_URL, { method: 'POST', body: formData });
     const result = await res.json();
     if (result.status === 'success') {
-      statusMessage.textContent = editRow.value ? 'Listing updated!' : 'Listing added!';
+      statusMessage.textContent = 'Listing saved!';
       form.reset();
       editRow.value = '';
       submitBtn.textContent = 'Add Listing';
@@ -132,7 +102,7 @@ async function sendData(formData) {
     statusMessage.textContent = 'Error: ' + err.message;
   }
   submitBtn.disabled = false;
-}
+});
 
 async function loadListings() {
   const container = document.getElementById('listingTable');
@@ -170,7 +140,6 @@ function editListing(row, listing) {
   document.getElementById('price').value = listing.price || '';
   document.getElementById('youtube').value = listing.youtube || '';
   document.getElementById('type').value = listing.type || '';
-
   document.getElementById('editRow').value = row;
   submitBtn.textContent = 'Update Listing';
   window.scrollTo({ top: 0, behavior: 'smooth' });
