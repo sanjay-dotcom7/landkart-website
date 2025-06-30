@@ -31,7 +31,10 @@
       <input id="price" name="price" type="number" min="0" required />
 
       <label for="image">Upload Image</label>
-      <input id="image" name="image" type="file" accept="image/*" />
+      <input id="image" name="image" type="file" accept="image/*" multiple />
+
+
+
 
       <label for="youtube">YouTube Link (optional)</label>
       <input id="youtube" name="youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." />
@@ -88,24 +91,31 @@ form.addEventListener('submit', async (e) => {
   if (isEdit) formData.append('editRow', isEdit);
 
   // Process image upload
-  if (file) {
+ const files = form.image.files;
+const imageUrls = [];
+
+if (files.length > 0) {
+  let processed = 0;
+  for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
-    reader.onloadend = async function () {
+    reader.onloadend = function () {
       const result = reader.result || '';
       if (result.startsWith("data:image")) {
-        formData.append('image', result);
-        await sendData(formData);
-      } else {
-        statusMessage.textContent = 'Error: Invalid image format';
-        submitBtn.disabled = false;
+        imageUrls.push(result);
+      }
+      processed++;
+      if (processed === files.length) {
+        formData.append('image', imageUrls.join(','));
+        sendData(formData);
       }
     };
-    reader.readAsDataURL(file);
-  } else {
-    formData.append('image', 'NO_IMAGE_UPDATE');
-    await sendData(formData);
+    reader.readAsDataURL(files[i]);
   }
-});
+} else {
+  formData.append('image', 'NO_IMAGE_UPDATE');
+  sendData(formData);
+}
+
 
 
 
