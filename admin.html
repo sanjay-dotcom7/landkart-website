@@ -9,7 +9,7 @@
     body { font-family: 'Poppins', sans-serif; background: #f9fafb; }
     .container { max-width: 800px; margin: 40px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgb(0 0 0 / 0.1); }
     label { font-weight: 600; margin-top: 12px; display: block; }
-    input, textarea { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; margin-top: 4px; }
+    input, textarea, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; margin-top: 4px; }
     button { margin-top: 16px; background-color: #16a34a; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
     button:disabled { background-color: #94a3b8; cursor: not-allowed; }
   </style>
@@ -30,22 +30,19 @@
       <label for="price">Price (₹)</label>
       <input id="price" name="price" type="number" min="0" required />
 
-      <label for="image">Upload Image</label>
+      <label for="image">Upload Image(s)</label>
       <input id="image" name="image" type="file" accept="image/*" multiple />
-
-
-
 
       <label for="youtube">YouTube Link (optional)</label>
       <input id="youtube" name="youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." />
+
       <label for="type">Category</label>
       <select id="type" name="type" required>
-      <option value="">-- Select Category --</option>
-      <option value="farm">Farm</option>
-      <option value="residential">Residential</option>
-      <option value="commercial">Commercial</option>
+        <option value="">-- Select Category --</option>
+        <option value="farm">Farm</option>
+        <option value="residential">Residential</option>
+        <option value="commercial">Commercial</option>
       </select>
-
 
       <button type="submit" id="submitBtn">Add Listing</button>
     </form>
@@ -74,13 +71,12 @@ form.addEventListener('submit', async (e) => {
   statusMessage.textContent = 'Uploading...';
 
   const isEdit = editRow.value;
-  const file = form.image.files[0];
-
   const title = form.title.value.trim();
   const description = form.description.value.trim();
   const price = form.price.value.trim();
   const youtube = form.youtube.value.trim();
   const type = form.type.value.trim();
+  const files = form.image.files;
 
   const formData = new FormData();
   formData.append('title', title);
@@ -90,34 +86,30 @@ form.addEventListener('submit', async (e) => {
   formData.append('type', type);
   if (isEdit) formData.append('editRow', isEdit);
 
-  // Process image upload
- const files = form.image.files;
-const imageUrls = [];
+  const imageUrls = [];
 
-if (files.length > 0) {
-  let processed = 0;
-  for (let i = 0; i < files.length; i++) {
-    const reader = new FileReader();
-    reader.onloadend = function () {
-      const result = reader.result || '';
-      if (result.startsWith("data:image")) {
-        imageUrls.push(result);
-      }
-      processed++;
-      if (processed === files.length) {
-        formData.append('image', imageUrls.join(','));
-        sendData(formData);
-      }
-    };
-    reader.readAsDataURL(files[i]);
+  if (files.length > 0) {
+    let processed = 0;
+    for (let i = 0; i < files.length; i++) {
+      const reader = new FileReader();
+      reader.onloadend = async function () {
+        const result = reader.result || '';
+        if (result.startsWith("data:image")) {
+          imageUrls.push(result);
+        }
+        processed++;
+        if (processed === files.length) {
+          formData.append('image', imageUrls.join(','));
+          await sendData(formData);
+        }
+      };
+      reader.readAsDataURL(files[i]);
+    }
+  } else {
+    formData.append('image', 'NO_IMAGE_UPDATE');
+    await sendData(formData);
   }
-} else {
-  formData.append('image', 'NO_IMAGE_UPDATE');
-  sendData(formData);
-}
-
-
-
+});
 
 async function sendData(formData) {
   try {
@@ -141,8 +133,6 @@ async function sendData(formData) {
   }
   submitBtn.disabled = false;
 }
-
-
 
 async function loadListings() {
   const container = document.getElementById('listingTable');
