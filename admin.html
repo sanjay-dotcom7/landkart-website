@@ -7,7 +7,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <style>
     body { font-family: 'Poppins', sans-serif; background: #f9fafb; }
-    .container { max-width: 800px; margin: 40px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .container { max-width: 800px; margin: 40px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgb(0 0 0 / 0.1); }
     label { font-weight: 600; margin-top: 12px; display: block; }
     input, textarea, select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; margin-top: 4px; }
     button { margin-top: 16px; background-color: #16a34a; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
@@ -19,8 +19,6 @@
     <h1 class="text-3xl font-bold mb-4 text-green-700">Admin Panel - Add Land Listing</h1>
 
     <form id="addListingForm">
-      <input type="hidden" id="editRow" />
-
       <label for="title">Title</label>
       <input id="title" name="title" type="text" required />
 
@@ -47,18 +45,18 @@
       <button type="submit" id="submitBtn">Add Listing</button>
     </form>
 
-    <div id="statusMessage" class="mt-4 text-sm font-semibold"></div>
+    <div id="statusMessage" class="mt-4 text-sm font-semibold text-red-500"></div>
   </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycby8_O8K3CyncSMYuyimnc0IN1SmqXQr_hDt4IqH6N3CduFXRQzZlHrEP2nFfzrdmSTV2Q/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwxhnUgTAt-fx9Ss24lkBsSse-wX009Viejn5vHIZLqQWZ4ZwyPQaGL3fM7CB3l5MN8wA/exec';
 
-const form = document.getElementById('addListingForm');
-const statusMessage = document.getElementById('statusMessage');
-const submitBtn = document.getElementById('submitBtn');
-
-form.addEventListener('submit', async (e) => {
+document.getElementById('addListingForm').addEventListener('submit', async function (e) {
   e.preventDefault();
+  const statusMessage = document.getElementById('statusMessage');
+  const form = e.target;
+  const submitBtn = document.getElementById('submitBtn');
+
   submitBtn.disabled = true;
   statusMessage.textContent = 'Uploading...';
 
@@ -69,28 +67,24 @@ form.addEventListener('submit', async (e) => {
   formData.append('youtube', form.youtube.value.trim());
   formData.append('type', form.type.value.trim());
 
-  const imageFile = form.image.files[0];
-  if (!imageFile) {
-    statusMessage.textContent = 'Please upload an image.';
+  const file = form.image.files[0];
+  if (!file) {
+    statusMessage.textContent = 'Please select an image.';
     submitBtn.disabled = false;
     return;
   }
-  formData.append('image', imageFile);
 
-  const editRowValue = form.editRow.value.trim();
-  if (editRowValue) {
-    formData.append('editRow', editRowValue);
-  }
+  formData.append('image', file);
 
   try {
-    const response = await fetch(API_URL, {
+    const res = await fetch(API_URL, {
       method: 'POST',
       body: formData
     });
-    const result = await response.json();
 
+    const result = await res.json();
     if (result.status === 'success') {
-      statusMessage.textContent = 'Listing saved successfully!';
+      statusMessage.textContent = 'Listing added successfully!';
       form.reset();
     } else {
       statusMessage.textContent = 'Failed: ' + result.message;
