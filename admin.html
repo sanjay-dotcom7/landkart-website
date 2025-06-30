@@ -78,9 +78,10 @@ form.addEventListener('submit', async (e) => {
   formData.append('type', form.type.value.trim());
 
   const files = form.image.files;
- for (let i = 0; i < files.length; i++) {
-  formData.append('images[]', files[i]); // use 'images[]'
+for (let i = 0; i < files.length; i++) {
+  formData.append(`image${i}`, files[i]);  // ✅ Named image0, image1...
 }
+formData.append('imageCount', files.length);  // ✅ Add total count
 
 
   if (editRow.value) {
