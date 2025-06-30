@@ -51,30 +51,16 @@
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbwxhnUgTAt-fx9Ss24lkBsSse-wX009Viejn5vHIZLqQWZ4ZwyPQaGL3fM7CB3l5MN8wA/exec';
 
-document.getElementById('addListingForm').addEventListener('submit', async function (e) {
-  e.preventDefault();
-  const statusMessage = document.getElementById('statusMessage');
-  const form = e.target;
-  const submitBtn = document.getElementById('submitBtn');
+const form = document.getElementById('addListingForm');
+const statusMessage = document.getElementById('statusMessage');
+const submitBtn = document.getElementById('submitBtn');
 
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // ❗ stop default form submit behavior
   submitBtn.disabled = true;
   statusMessage.textContent = 'Uploading...';
 
-  const formData = new FormData();
-  formData.append('title', form.title.value.trim());
-  formData.append('description', form.description.value.trim());
-  formData.append('price', form.price.value.trim());
-  formData.append('youtube', form.youtube.value.trim());
-  formData.append('type', form.type.value.trim());
-
-  const file = form.image.files[0];
-  if (!file) {
-    statusMessage.textContent = 'Please select an image.';
-    submitBtn.disabled = false;
-    return;
-  }
-
-  formData.append('image', file);
+  const formData = new FormData(form); // ✅ collects all form inputs including file
 
   try {
     const res = await fetch(API_URL, {
@@ -83,6 +69,7 @@ document.getElementById('addListingForm').addEventListener('submit', async funct
     });
 
     const result = await res.json();
+
     if (result.status === 'success') {
       statusMessage.textContent = 'Listing added successfully!';
       form.reset();
@@ -90,7 +77,7 @@ document.getElementById('addListingForm').addEventListener('submit', async funct
       statusMessage.textContent = 'Failed: ' + result.message;
     }
   } catch (err) {
-    statusMessage.textContent = 'Error: ' + err.message;
+    statusMessage.textContent = 'Upload failed: ' + err.message;
   }
 
   submitBtn.disabled = false;
