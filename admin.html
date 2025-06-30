@@ -30,8 +30,8 @@
       <label for="price">Price (₹)</label>
       <input id="price" name="price" type="number" min="0" required />
 
-      <label for="image">Upload Image(s)</label>
-      <input id="image" name="image" type="file" accept="image/*" multiple />
+      <label for="image">Upload Image</label>
+      <input id="image" name="image" type="file" accept="image/*" required />
 
       <label for="youtube">YouTube Link (optional)</label>
       <input id="youtube" name="youtube" type="url" placeholder="https://www.youtube.com/watch?v=..." />
@@ -77,11 +77,52 @@ form.addEventListener('submit', async (e) => {
   formData.append('youtube', form.youtube.value.trim());
   formData.append('type', form.type.value.trim());
 
-  const files = form.image.files;
-for (let i = 0; i < files.length; i++) {
-  formData.append(`image${i}`, files[i]);  // ✅ Named image0, image1...
+  const file = form.image.files[0];
+  if (!file) {
+    statusMessage.textContent = 'Please upload an image.';
+    submitBtn.disabled = false;
+    return;
+  }
+
+  formData.append('image', file);
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: formData
+    });
+    const result = await res.json();
+
+    if (result.status === 'success') {
+      statusMessage.textContent = 'Listing added!';
+      form.reset();
+    } else {
+      statusMessage.textContent = 'Error: ' + result.message;
+    }
+  } catch (err) {
+    statusMessage.textContent = 'Upload failed: ' + err.message;
+  }
+
+  submitBtn.disabled = false;
+});
+
+  const formData = new FormData();
+  formData.append('title', form.title.value.trim());
+  formData.append('description', form.description.value.trim());
+  formData.append('price', form.price.value.trim());
+  formData.append('youtube', form.youtube.value.trim());
+  formData.append('type', form.type.value.trim());
+
+ const file = form.image.files[0];
+
+if (!file) {
+  statusMessage.textContent = 'Please upload an image.';
+  submitBtn.disabled = false;
+  return;
 }
-formData.append('imageCount', files.length);  // ✅ Add total count
+
+formData.append('image', file); // ✅ Append actual file to FormData
+
 
 
   if (editRow.value) {
