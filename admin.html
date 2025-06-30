@@ -78,9 +78,10 @@ form.addEventListener('submit', async (e) => {
   formData.append('type', form.type.value.trim());
 
   const files = form.image.files;
-  for (let i = 0; i < files.length; i++) {
-    formData.append('images', files[i]);
-  }
+ for (let i = 0; i < files.length; i++) {
+  formData.append('images[]', files[i]); // use 'images[]'
+}
+
 
   if (editRow.value) {
     formData.append('editRow', editRow.value);
