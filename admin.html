@@ -86,6 +86,10 @@ form.addEventListener('submit', async (e) => {
 
   formData.append('image', file);
 
+  if (editRow.value) {
+    formData.append('editRow', editRow.value);
+  }
+
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -93,45 +97,6 @@ form.addEventListener('submit', async (e) => {
     });
     const result = await res.json();
 
-    if (result.status === 'success') {
-      statusMessage.textContent = 'Listing added!';
-      form.reset();
-    } else {
-      statusMessage.textContent = 'Error: ' + result.message;
-    }
-  } catch (err) {
-    statusMessage.textContent = 'Upload failed: ' + err.message;
-  }
-
-  submitBtn.disabled = false;
-});
-
-  const formData = new FormData();
-  formData.append('title', form.title.value.trim());
-  formData.append('description', form.description.value.trim());
-  formData.append('price', form.price.value.trim());
-  formData.append('youtube', form.youtube.value.trim());
-  formData.append('type', form.type.value.trim());
-
- const file = form.image.files[0];
-
-if (!file) {
-  statusMessage.textContent = 'Please upload an image.';
-  submitBtn.disabled = false;
-  return;
-}
-
-formData.append('image', file); // ✅ Append actual file to FormData
-
-
-
-  if (editRow.value) {
-    formData.append('editRow', editRow.value);
-  }
-
-  try {
-    const res = await fetch(API_URL, { method: 'POST', body: formData });
-    const result = await res.json();
     if (result.status === 'success') {
       statusMessage.textContent = 'Listing saved!';
       form.reset();
@@ -144,6 +109,7 @@ formData.append('image', file); // ✅ Append actual file to FormData
   } catch (err) {
     statusMessage.textContent = 'Error: ' + err.message;
   }
+
   submitBtn.disabled = false;
 });
 
@@ -156,7 +122,7 @@ async function loadListings() {
     container.innerHTML = '';
     listings.forEach((listing, index) => {
       const rowNumber = index + 2;
-      const image = (listing.image || '').split(',')[0];
+      const image = listing.image;
       const html = `
         <div class="p-4 border rounded bg-gray-50">
           <div class="mb-2">
